@@ -1,0 +1,28 @@
+use("VideoFinca");  //Para correr en Vcode
+
+db.Finca.aggregate(
+  [
+    {
+      $match: {
+        _id: "Finca0001"
+      }
+    },  
+    {
+      $lookup: {
+        from: 'Plantilla',
+        localField: '_id',
+        foreignField: 'Finca',
+        as: 'Plantillas'
+      }
+    },  
+    {
+      $lookup: {
+        from: 'Propietario',
+        localField: '_id',
+        foreignField: 'Finca',
+        as: 'Propietarios'
+      }
+    }    
+  ]
+)
+
