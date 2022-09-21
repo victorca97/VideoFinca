@@ -1,0 +1,19 @@
+use("VideoFinca");  //Para correr en Vcode
+
+db.Admin.aggregate(
+  [
+    {
+      $match: {
+        _id: "Admin01"
+      }
+    },  
+    {
+      $lookup: {
+        from: 'Finca',
+        localField: '_id',
+        foreignField: 'Admin',
+        as: 'Finca'
+      }
+    }  
+  ]
+)
