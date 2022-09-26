@@ -46,8 +46,7 @@ def cantidad_propietarios(lista_prueba,matriz):
     for p in range(num_propietarios):
         datos = lista_prueba[0]['lista_propietarios'][p]['_id']
         matriz.append(datos)
-    #Propietarios ['123456789', '1122334455']
-
+#esta version lee por fincas
 def principalv1(finca,collection2,tipo_moneda='S/.',n_excel=1):
     for f in finca:
         #representaciones
@@ -354,16 +353,19 @@ def principalv1(finca,collection2,tipo_moneda='S/.',n_excel=1):
                     n_excel=n_excel+1
                     book.close()
 
-def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
+#esta version lee por propietarios
+def principalv2(resultados2,propietarios,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
 
     #CREANDO LA TABLA
     #toda esta parte es fija en la tabla
     #----------------------------------------------------------------
     list_cur = list(resultados2) #esto es una lista
-    l=len(propietarios)   
-    prop=list_cur[0]['Propietarios']
+    l=len(propietarios)#ver cuantos propietarios hay
+    prop=list_cur[0]['Propietarios']#para leer el json
     for i in range(l): 
+        #crear excels por cada propietario
         for p in propietarios:
+            #lee cada propietario
             if (p==prop[i]['_id']):
             
                 #CREANDO EL EXCEL
@@ -371,6 +373,7 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                 book=Workbook()
                 sheet= book.active
                 
+                #modificando el excel
                 for columna in range(1,6):
                     col_letter = get_column_letter(columna)
                     sheet.column_dimensions[col_letter].width = 20 #NO ESTA EN PIXELES
@@ -399,7 +402,7 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                 sheet['A7']='Periodo:'
 
                 #DEPARTAMENTO y PORC. PARTICIPACION
-                
+                #departamento
                 departamentos = prop[i]['Departamentos']
                 id_departamento = departamentos[0]['ID_Departamentos']
                 porcentaje_participacion = departamentos[0]['Porcentaje_Participacion']
@@ -412,12 +415,14 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                 
                 estacionamientos = prop[0]['Estacionamientos']
 
+                #por cada estacionamiento
                 for j in range(len(estacionamientos)):
                     num_estacionamiento = estacionamientos[j]['Numero_Estacionamiento']
                 
                 sheet['C5']='Estacionamiento:'
                 sheet.merge_cells('B6:E6')
 
+                #Datos del propietario
                 nombre = prop[i]['Nombre']
 
                 apellido = prop[i]['Apellido']
@@ -467,10 +472,11 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                     secciones = plantillas[j]['Seccion']
 
                     for s in range(len(secciones)):
+                        #secciones
                         id_seccion = secciones[s]['ID_Seccion']
 
                         nombre = secciones[s]['nombre']
-
+                        
                         nombre_seccion= id_seccion+'-'+nombre
                         celda_seccion=f'A{iterable}'
                         sheet[celda_seccion]=nombre_seccion
@@ -479,10 +485,12 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                         iterable=iterable+1
 
                         subsecciones = secciones[s]['Subsecciones']
+                        
+                        #subsecciones
 
                         for ss in range(len(subsecciones)):
                             id_subseccion = subsecciones[ss]["ID_Subseccion"]
-
+                            #nombre
                             nombre = subsecciones[ss]['nombre']
 
                             nombre_subseccion = id_subseccion+'-'+nombre
@@ -490,11 +498,13 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                             valor_col1=nombre_subseccion
                             sheet[celda_col1] = valor_col1
 
+                            #descripcion
                             descripcion = subsecciones[ss]['descripcion']
                             celda_col2=f'B{iterable}'
                             valor_col2=descripcion
                             sheet[celda_col2] = valor_col2
 
+                            #monto
                             monto = subsecciones[ss]['monto']
                             celda_col4=f'D{iterable}'
                             monto_float = "{:.2f}".format(monto)
@@ -529,6 +539,7 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                 celda_total=f'A{iterable}'
                 celda_total_valor=f'E{iterable}'
                 sheet[celda_total] = 'TOTAL'
+                
                 formato_celdas(sheet,celda_total,'Arial',10,True,False,'000000')
                 sheet[celda_total_valor]=celda_suma_expresion
                 sheet[celda_total_valor].alignment=Alignment(horizontal='center')
@@ -538,13 +549,15 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
 
                 #ultimos datos de abajo
                 #----------------------------------------------------------------
+                #Fechas emision
                 celda_fecha_emision=f'A{iterable}'
                 sheet[celda_fecha_emision]='Fecha de emision' #inicial
                 
                 celda_fecha_emision=f'A{iterable+1}'
                 valor_fecha_emision='01/09/2022'
                 sheet[celda_fecha_emision]=valor_fecha_emision
-
+                
+                #fecha vencimiento
                 celda_fecha_vencimento=f'B{iterable}'
                 sheet[celda_fecha_vencimento]='Fecha de vencimiento'
 
@@ -552,6 +565,7 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                 valor_fecha_vencimento='07/07/2022'
                 sheet[celda_fecha_vencimento]=valor_fecha_vencimento
 
+                #N° de cuenta
                 celda_ncuenta=f'C{iterable}'
                 sheet[celda_ncuenta]='N° Cuenta'
 
@@ -564,6 +578,7 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                 
                 valor_fin_ncuenta=f'E{iterable}'
 
+                #CCI
                 valor_ini_CCI=f'D{iterable+1}'
                 cci="0021194132456789" #final
                 sheet[valor_ini_CCI]=cci
@@ -600,12 +615,13 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                                                                     right=Side(border_style=None, color='000000'),
                                                                     top=Side(border_style=None, color='000000'),
                                                                     bottom=Side(border_style='thin', color='000000'))
-                        #sheet.row_dimensions[fila].height = 80
+                
                 #fila del titular ultima_fila+1
                 celda_vacia_ini=f'A{ultima_fila+1}'
                 celda_vacia_fin=f'B{ultima_fila+1}'
                 combinar_celdas(sheet,celda_vacia_ini,celda_vacia_fin)
 
+                #ultimas celdas
                 celda_titular_ini = f'C{ultima_fila+1}'
                 celda_titular_fin = f'E{ultima_fila+1}'
                 titular=nombres_completos
@@ -613,6 +629,7 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                 combinar_celdas(sheet,celda_titular_ini,celda_titular_fin,texto_titular)
                 sheet[celda_titular_ini].alignment=Alignment(horizontal='center')
 
+                #ultimas celdas de texto
                 celdaini_mensaje =f'A{ultima_fila+2}'
                 celdafin_mensaje =f'E{ultima_fila+3}'
                 for i in range (ultima_fila,ultima_fila+4):
@@ -621,15 +638,25 @@ def principalv2(resultados2,propietarios,tipo_moneda='S/.',n_excel=1):
                                                         right=Side(border_style='thin', color='000000'),
                                                         top=Side(border_style='thin', color='000000'),
                                                         bottom=Side(border_style='thin', color='000000'))
-                mensaje_extra='Mensaje extra al pie de pagina'
+                
                 combinar_celdas(sheet,celdaini_mensaje,celdafin_mensaje,mensaje_extra)
                 sheet.cell(ultima_fila+2,1).alignment = Alignment(horizontal='center',vertical='center')
                 #----------------------------------------------------------------
                 ruta_excel='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas_reales'
                 nombre_excel = f'/propietarioV3_{p}_{n_excel}.xlsx'
+                
+                #nombre del excel
                 excel_guardar = ruta_excel+nombre_excel
+                
+                #guardando el libro
                 book.save(excel_guardar)
+                
+                #aumentando el numero del excel a guardar
                 n_excel=n_excel+1
+                
+                #si se ve esto en pantalla, se genero el excel con exito
                 print('Excel creado')
+                
+                #cerrar el libro
                 book.close()  
                 break

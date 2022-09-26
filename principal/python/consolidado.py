@@ -17,18 +17,19 @@ from urls import*
 if __name__ == "__main__":
     while True:
         #PARA CONECTARSE AL MONGO DB
-        MONGO_HOST="localhost"
+        """ MONGO_HOST="localhost"
         MONGO_PUERTO="27017"
         MONGO_TIEMPO_FUERA=1000
         MONGO_URL="mongodb://"+MONGO_HOST+":"+MONGO_PUERTO+"/"
 
-        client = MongoClient(MONGO_URL)
+        client = MongoClient(MONGO_URL)"""
         
-        lista_prueba,collection2=lista_json(client)
+        #lista_prueba,collection2=lista_json(client)
         json = urls()
         #GUARDANDO LAS FINCAS Y PROPIETARIOS
         fincas = []
         propietarios=[]
+        #en caso de cambiar de moneda descomentar la linea de abajo y poner la moneda
         #tipo_moneda='€'
         cantidad_finca(json,fincas)
         cantidad_propietarios(json,propietarios)
