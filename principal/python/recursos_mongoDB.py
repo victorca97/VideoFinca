@@ -365,14 +365,45 @@ def principalv1(finca,collection2,tipo_moneda='S/.',n_excel=1):
                     n_excel=n_excel+1
                     book.close()
 
+def bordear_celdas (sheet,celda_ini,celda_final):
+    letra_ini_col = celda_ini[0]
+    print(type(letra_ini_col))
+
+    letra_final_col = celda_final[0]
+    print(type(letra_final_col))
+    letra_ini_fil = int(celda_ini[1])
+    letra_final_fil = int(celda_final[1])
+
+    col_ini=sheet[f'{letra_ini_col}']
+    print(col_ini)
+    col_final=sheet.col_values(int(letra_final_col))
+    for fila in range(letra_ini_fil,letra_final_fil):
+        for columna in range(col_ini,col_final):
+            sheet.cell(fila,columna).border = Border(left=Side(border_style='thin', color='000000'),
+                                                    right=Side(border_style='thin', color='000000'),
+                                                    top=Side(border_style='thin', color='000000'),
+                                                    bottom=Side(border_style='thin', color='000000'))
+
+def getColumnName(n):#bota string
+    # inicializa la string de salida como vacía
+    result = ''
+    while n > 0:
+
+        # encontrar el índice de la siguiente letra y concatenar la letra
+        # a la solución
+ 
+        # aquí el índice 0 corresponde a `A`, y 25 corresponde a `Z`
+        index = (n - 1) % 26
+        result += chr(index + ord('A'))
+        n = (n - 1) // 26
+    return result[::-1]
+
 #esta version lee por propietarios
 def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
 
     #CREANDO LA TABLA
     #toda esta parte es fija en la tabla
     #----------------------------------------------------------------
-    #list_cur = list(resultados2) #esto es una lista
-    #l=len(propietarios)#ver cuantos propietarios hay
     prop=json[0]['Propietarios']#para leer el json
     for i in range(len(prop)):
         id = prop[i]['_id']
@@ -460,12 +491,13 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         formato_celdas(sheet,'E8','Arial',10,False,True,'000000',True)
         sheet['E8'].alignment=Alignment(horizontal='center')
 
+        #bordear_celdas(sheet,'A1','E8')
         for fila in range(1,8):
             for columna in range(1,6):
                 sheet.cell(fila,columna).border = Border(left=Side(border_style='thin', color='000000'),
-                                                            right=Side(border_style='thin', color='000000'),
-                                                            top=Side(border_style='thin', color='000000'),
-                                                            bottom=Side(border_style='thin', color='000000'))
+                                                        right=Side(border_style='thin', color='000000'),
+                                                        top=Side(border_style='thin', color='000000'),
+                                                        bottom=Side(border_style='thin', color='000000'))
 
         sheet.cell(7,6).border = Border(left=Side(border_style='thin', color='000000'),
                                         right=Side(border_style=None, color='000000'),
@@ -659,7 +691,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         logo_pil.save('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGO_VIDEOFINCA.png')
         sheet.add_image(logo,'A1')
 
-        ruta_excel='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas_reales'
+        ruta_excel='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas'
         nombre_excel = f'/propietarioV4_{id}_{n_excel}.xlsx'
         
         #nombre del excel
@@ -672,7 +704,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         n_excel=n_excel+1
         
         #si se ve esto en pantalla, se genero el excel con exito
-        print('Excel creado')
+        print('Excel creado del propietario '+nombres_completos)
         
         #cerrar el libro
         book.close()  
