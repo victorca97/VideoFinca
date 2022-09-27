@@ -13,7 +13,17 @@ from openpyxl.styles import *
 from openpyxl.utils import get_column_letter
 from urls import *
 from PIL import Image
+
+#PARA CONECTARSE AL MONGO DB
+"""MONGO_HOST="localhost"
+MONGO_PUERTO="27017"
+MONGO_TIEMPO_FUERA=1000
+MONGO_URL="mongodb://"+MONGO_HOST+":"+MONGO_PUERTO+"/"
+
+client = MongoClient(MONGO_URL)"""
+
 #Leer los datos de la BD
+
 def leer_db(coleccion):
     bd=coleccion.find()
     for r in bd:
@@ -666,8 +676,3 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         
         #cerrar el libro
         book.close()  
-                
-def prueba(json):
-    propietarios = json[0]['Propietarios']
-    print(propietarios)
-    #print(json[0]['Propietarios'])

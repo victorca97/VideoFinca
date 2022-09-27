@@ -16,53 +16,6 @@ from urls import*
 
 if __name__ == "__main__":
     while True:
-        #PARA CONECTARSE AL MONGO DB
-        """MONGO_HOST="localhost"
-        MONGO_PUERTO="27017"
-        MONGO_TIEMPO_FUERA=1000
-        MONGO_URL="mongodb://"+MONGO_HOST+":"+MONGO_PUERTO+"/"
-
-        client = MongoClient(MONGO_URL)"""
-        
-        #lista_prueba,collection2=lista_json(client)
         json = urls()#el json listo
-        
-        #GUARDANDO LAS FINCAS Y PROPIETARIOS
-        #fincas = []
-        #propietarios=[]
-        #en caso de cambiar de moneda descomentar la linea de abajo y poner la moneda
-        #tipo_moneda='€'
-        #cantidad_finca(json,fincas)
-        #cantidad_propietarios(lista_prueba,propietarios)
-
-        """for f in fincas:
-            plantilla2=[
-            {
-            "$match": {
-                "_id": f'{f}'
-            }
-            },  
-            {
-            "$lookup": {
-                "from": 'Plantilla',
-                "localField": '_id',
-                "foreignField": 'Finca',
-                "as": 'Plantillas'
-            }
-            },  
-            {
-            "$lookup": {
-                "from": 'Propietario',
-                "localField": '_id',
-                "foreignField": 'Finca',
-                "as": 'Propietarios'
-            }
-            }
-            ]
-            resultados2 =collection2.aggregate(plantilla2)
-            print('ejecutandose el principalv2')
-            principalv2(resultados2,propietarios)"""
-        #principalv1(fincas,propietarios,collection2)
         principalv2(json)
-        #prueba(json)
         sys.exit()
