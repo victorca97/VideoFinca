@@ -23,7 +23,7 @@ def formato_celdas(sheet,celda,fuente,tamaño,negrita=False,curva=False,color_te
                  italic=curva,
                  underline=tipo_subrayado,
                  color=color_texto)
-                 
+
 def bordear_celdasv1(sheet,celda_ini,celda_final):#A1 , E8
     letra_ini_col = celda_ini[0]#string
     letra_ini_col = ord(letra_ini_col)-64#letra a numero
@@ -34,14 +34,14 @@ def bordear_celdasv1(sheet,celda_ini,celda_final):#A1 , E8
     letra_ini_fil = int(celda_ini[1])#int
     letra_final_fil = int(celda_final[1])#int
 
-
     for fila in range(letra_ini_fil,letra_final_fil):
         for columna in range(letra_ini_col,letra_final_col):
             sheet.cell(fila,columna).border = Border(left=Side(border_style='thin', color='000000'),
                                                     right=Side(border_style='thin', color='000000'),
                                                     top=Side(border_style='thin', color='000000'),
                                                     bottom=Side(border_style='thin', color='000000'))
-def bordear_celdasv2(sheet,iterable,ultima_fila,centrado=False):
+
+def bordear_celdasv2(sheet,iterable,ultima_fila,centrado=False):#cuando tienes la posicion de las celdas en numeros
     for i in range(iterable,ultima_fila+1):
             for j in range(1,6):
                 sheet.cell(i,j).border = Border(left=Side(border_style='thin', color='000000'),
@@ -58,24 +58,28 @@ def izquierda(sheet,fila,columna):
                                                 right=Side(border_style=None, color='000000'),
                                                 top=Side(border_style=None, color='000000'),
                                                 bottom=Side(border_style=None, color='000000'))
+    #print('izquierda')
 
 def derecha(sheet,fila,columna):
     sheet.cell(fila,columna).border = Border(left=Side(border_style=None, color='000000'),
                                                 right=Side(border_style='thin', color='000000'),
                                                 top=Side(border_style=None, color='000000'),
                                                 bottom=Side(border_style=None, color='000000'))
+    #print('derecha')
 
 def arriba(sheet,fila,columna):
     sheet.cell(fila,columna).border = Border(left=Side(border_style=None, color='000000'),
                                                 right=Side(border_style=None, color='000000'),
                                                 top=Side(border_style='thin', color='000000'),
                                                 bottom=Side(border_style=None, color='000000'))
+    #print('arriba')
 
 def abajo(sheet,fila,columna):
     sheet.cell(fila,columna).border = Border(left=Side(border_style=None, color='000000'),
                                                 right=Side(border_style=None, color='000000'),
                                                 top=Side(border_style=None, color='000000'),
                                                 bottom=Side(border_style='thin', color='000000'))
+    #print('abajo')
 
 def bordear_lado(lado,sheet,fila,columna):
     {

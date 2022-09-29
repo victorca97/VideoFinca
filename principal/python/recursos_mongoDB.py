@@ -105,7 +105,14 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         sheet['E8']='Importe'
         formato_celdas(sheet,'E8','Arial',10,False,True,'000000',True)
         sheet['E8'].alignment=Alignment(horizontal='center')
-        bordear_celdasv1(sheet,'A1','F8')#por alguna razon lo corre aunq marque error gaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        
+
+        """for k in range(1,5):
+            sheet.cell(8,k).border = Border(left=Side(border_style=None, color='000000'),
+                                            right=Side(border_style=None, color='000000'),
+                                            top=Side(border_style='thin', color='000000'),
+                                            bottom=Side(border_style=None, color='000000'))"""
+
 
         """sheet.cell(7,6).border = Border(left=Side(border_style='thin', color='000000'),
                                         right=Side(border_style=None, color='000000'),
@@ -178,7 +185,6 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
                         valor_col5=tipo_moneda +' '+str(total_monto_fila_float)
                     else:
                         valor_col5=str(total_monto_fila_float)+' '+tipo_moneda
-                    #sheet.write(celda_col5, valor_col5)
 
                     sheet[celda_col5] = valor_col5
                     sheet[celda_col5].alignment=Alignment(horizontal='center')
@@ -199,6 +205,9 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         sheet[celda_total_valor]=celda_suma_expresion
         sheet[celda_total_valor].alignment=Alignment(horizontal='center')
         formato_celdas(sheet,celda_total_valor,'Arial',10,True,False,'000000')
+
+        bordear_celdasv1(sheet,'A1','F8')#por alguna razon lo corre aunq marque error gaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+
         iterable= iterable + 1
         #----------------------------------------------------------------
 
@@ -247,11 +256,11 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
             for columna in range(1,6):
                 
                 if (fila==8):
-                    bordear_lado('arriba',sheet,fila,columna)
-                    """sheet.cell(fila,columna).border = Border(left=Side(border_style=None, color='000000'),
+                    #bordear_lado('arriba',sheet,fila,columna)
+                    sheet.cell(fila,columna).border = Border(left=Side(border_style=None, color='000000'),
                                                             right=Side(border_style=None, color='000000'),
                                                             top=Side(border_style='thin', color='000000'),
-                                                            bottom=Side(border_style=None, color='000000'))"""
+                                                            bottom=Side(border_style=None, color='000000'))
                 if (columna==5):
                     bordear_lado('derecha',sheet,fila,columna)
                     """sheet.cell(fila,columna).border = Border(left=Side(border_style=None, color='000000'),
@@ -320,6 +329,8 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         #nombre del excel
         excel_guardar = ruta_excel+nombre_excel
         
+        
+
         #guardando el libro
         book.save(excel_guardar)
         
