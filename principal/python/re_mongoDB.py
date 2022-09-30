@@ -316,20 +316,22 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         finca_pil.save('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA_MODIFICADO.jpg')
 
         logo = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_MODIFICADO.png')
-        sheet.add_image(logo,'A1')
+        sheet.add_image(logo,'A2')
 
         finca = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA_MODIFICADO.jpg')
-        sheet.add_image(finca,'E1') 
+        sheet.add_image(finca,'E2') 
         sheet.cell(1,5).alignment = Alignment(horizontal='center',vertical='center')
 
         ruta_excel='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas'
+        ruta_pdf='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas'
         nombre_excel = f'/propietarioV4_{id}_{n_excel}.xlsx'
-        
+        nombre_pdf = f'/propietarioV4_{id}_{n_excel}.pdf'
         #nombre del excel
         excel_guardar = ruta_excel+nombre_excel
-
+        excel_pdf = ruta_pdf+nombre_pdf
         #guardando el libro
         book.save(excel_guardar)
+        book.save(excel_pdf)
         
         #aumentando el numero del excel a guardar
         n_excel=n_excel+1
