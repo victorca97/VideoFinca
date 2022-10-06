@@ -326,13 +326,16 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
 
         ruta_excel='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas'
 
-        nombre_excel = f'/propietarioV4_{id}_{n_excel}.xlsx'
+        nombre_excel = f'propietarioV4_{id}_{n_excel}'
+
+        extension_excel = '.xlsx'
         #nombre del excel
-        excel_guardar = ruta_excel+nombre_excel
+        excel_guardar = ruta_excel+'/'+nombre_excel+extension_excel
         
         #excel_pdf_antes(n_excel,book)
         #guardando el libro
         book.save(excel_guardar)
+        convertir_a_pdf(ruta_excel,nombre_excel)
         #excel_pdf_aspose(excel_guardar,n_excel)
         #yaaa(excel_guardar,n_excel)
         #aumentando el numero del excel a guardar

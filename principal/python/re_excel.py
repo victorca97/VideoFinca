@@ -6,7 +6,7 @@ from openpyxl.chart import ScatterChart, Reference, Series
 from openpyxl.styles import *
 from openpyxl.utils import get_column_letter
 from openpyxl import load_workbook
-
+import xlwings as xw
 #import asposecells #PdfSaveOptions,PdfCompliance
 #from asposecells.api import Workbook,PdfSaveOptions,PdfCompliance
 
@@ -114,3 +114,18 @@ def ancho_col(sheet):
         medida=lista_ancho_columnas[anchos]
         sheet.column_dimensions[col_letter].width = medida #NO ESTA EN PIXELES
         anchos=anchos+1
+
+def convertir_a_pdf(ruta_excel,nombre_archivo):
+    print('Iniciando ...')
+    # Initialize new excel workbook
+    print(ruta_excel+'/'+nombre_archivo+'.xlsx')
+    book = xw.Book(ruta_excel+'/'+nombre_archivo+'.xlsx')
+    #book = xw.Book('C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/modificado.xlsx')#RUTA
+
+    ruta_pdf='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/'
+    nombre_pdf = nombre_archivo+'.pdf'
+    pdf_path = ruta_pdf+nombre_pdf
+    # Save excel workbook to pdf file
+    print(f"Saving workbook as '{pdf_path}' ...")
+    book.api.ExportAsFixedFormat(0, pdf_path)
+    print('conversion exitosa')

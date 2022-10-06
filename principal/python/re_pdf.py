@@ -3,7 +3,7 @@ import xlwings as xw
 
 print('Iniciando ...')
 # Initialize new excel workbook
-book = xw.Book('C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/modificado.xlsx')
+book = xw.Book('C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/modificado.xlsx')#RUTA
 
 # Construct path for pdf file
 #current_work_dir = os.getcwd()
