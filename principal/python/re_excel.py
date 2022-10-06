@@ -1,13 +1,14 @@
 import pandas as pd
 from openpyxl.workbook import Workbook
 import openpyxl
-from openpyxl import Workbook
-import time
+#from openpyxl import Workbook
 from openpyxl.chart import ScatterChart, Reference, Series
 from openpyxl.styles import *
 from openpyxl.utils import get_column_letter
 from openpyxl import load_workbook
-from PDFWriter import PDFWriter
+
+#import asposecells #PdfSaveOptions,PdfCompliance
+#from asposecells.api import Workbook,PdfSaveOptions,PdfCompliance
 
 def combinar_celdas(sheet,celda_inicial,celda_final,texto=''):
     sheet.merge_cells(f'{celda_inicial}:{celda_final}')
@@ -105,25 +106,11 @@ def getColumnName(n):#vota string
         n = (n - 1) // 26
     return result[::-1]
 
-def excel_pdf():
-    
-
-    workbook = load_workbook('fruits2.xlsx', guess_types=True, data_only=True)
-    worksheet = workbook.active
-
-    pw = PDFWriter('fruits2.pdf')
-    pw.setFont('Courier', 12)
-    pw.setHeader('XLSXtoPDF.py - convert XLSX data to PDF')
-    pw.setFooter('Generated using openpyxl and xtopdf')
-
-    ws_range = worksheet.iter_rows('A1:H13')
-    for row in ws_range:
-        s = ''
-        for cell in row:
-            if cell.value is None:
-                s += ' ' * 11
-            else:
-                s += str(cell.value).rjust(10) + ' '
-        pw.writeLine(s)
-    pw.savePage()
-    pw.close()
+def ancho_col(sheet):
+    lista_ancho_columnas=[17,18,14,10,17]
+    anchos=0
+    for columna in range(1,6):
+        col_letter = get_column_letter(columna)
+        medida=lista_ancho_columnas[anchos]
+        sheet.column_dimensions[col_letter].width = medida #NO ESTA EN PIXELES
+        anchos=anchos+1

@@ -33,9 +33,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         sheet= book.active
         
         #modificando el excel
-        for columna in range(1,6):
-            col_letter = get_column_letter(columna)
-            sheet.column_dimensions[col_letter].width = 26.714 #NO ESTA EN PIXELES
+        ancho_col(sheet)
 
         combinar_celdas(sheet,'B1','D1','JUNTA DE PROPIETARIOS')
         sheet['B1'].alignment=Alignment(horizontal="center")
@@ -219,7 +217,8 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         celda_fecha_emision=f'A{iterable+1}'
         valor_fecha_emision='01/09/2022'
         sheet[celda_fecha_emision]=valor_fecha_emision
-        
+        sheet[celda_fecha_emision].alignment=Alignment(horizontal='center')
+
         #fecha vencimiento
         celda_fecha_vencimento=f'B{iterable}'
         sheet[celda_fecha_vencimento]='Fecha de vencimiento'
@@ -227,6 +226,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         celda_fecha_vencimento=f'B{iterable+1}'
         valor_fecha_vencimento='07/07/2022'
         sheet[celda_fecha_vencimento]=valor_fecha_vencimento
+        sheet[celda_fecha_vencimento].alignment=Alignment(horizontal='center')
 
         #N° de cuenta
         celda_ncuenta=f'C{iterable}'
@@ -234,6 +234,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
 
         celda_CCI=f'C{iterable+1}'
         sheet[celda_CCI]='CCI'
+        sheet[celda_CCI].alignment=Alignment(horizontal='center')
 
         valor_ini_ncuenta=f'D{iterable}'
         ncuenta='194-123456789'
@@ -250,6 +251,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         bordear_celdasv2(sheet,iterable,ultima_fila-1,True)
         combinar_celdas(sheet,valor_ini_ncuenta,valor_fin_ncuenta)
         combinar_celdas(sheet,valor_ini_CCI,valor_fin_CCI)
+        sheet[valor_ini_CCI].alignment=Alignment(horizontal='center')
         
         for fila in range(8,iterable):
             for columna in range(1,6):
@@ -305,8 +307,8 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         #logo = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_ORIGINAL.png')
         logo_pil = Image.open('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_ORIGINAL.png')
         finca_pil = Image.open('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA.jpg')
-        proporcion = 3.07
-        alto = 60
+        proporcion = 3
+        alto = 40
         ancho = int(proporcion * alto)
 
         logo_pil = logo_pil.resize((ancho,alto))#140 80 solo acepta enteros
@@ -323,16 +325,16 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         sheet.cell(1,5).alignment = Alignment(horizontal='center',vertical='center')
 
         ruta_excel='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas'
-        ruta_pdf='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas'
+
         nombre_excel = f'/propietarioV4_{id}_{n_excel}.xlsx'
-        nombre_pdf = f'/propietarioV4_{id}_{n_excel}.pdf'
         #nombre del excel
         excel_guardar = ruta_excel+nombre_excel
-        excel_pdf = ruta_pdf+nombre_pdf
+        
+        #excel_pdf_antes(n_excel,book)
         #guardando el libro
         book.save(excel_guardar)
-        book.save(excel_pdf)
-        
+        #excel_pdf_aspose(excel_guardar,n_excel)
+        #yaaa(excel_guardar,n_excel)
         #aumentando el numero del excel a guardar
         n_excel=n_excel+1
         
