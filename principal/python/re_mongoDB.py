@@ -33,8 +33,14 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         sheet= book.active
         
         #modificando el excel
-        ancho_col(sheet)
-
+        #ancho_col(sheet)
+        lista_ancho_columnas=[17,18,14,10,17]
+        anchos=0
+        for columna in range(1,6):
+            col_letter = get_column_letter(columna)
+            medida=lista_ancho_columnas[anchos]
+            sheet.column_dimensions[col_letter].width = medida #NO ESTA EN PIXELES
+            anchos=anchos+1
         combinar_celdas(sheet,'B1','D1','JUNTA DE PROPIETARIOS')
         sheet['B1'].alignment=Alignment(horizontal="center")
 
@@ -50,7 +56,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
 
         combinar_celdas(sheet,'B4','D4','RECIBO POR CUOTA DE MANTENIMIENTO')
         sheet['B4'].alignment=Alignment(horizontal="center")
-        formato_celdas(sheet,'B1','Arial',10,True,True,'000000',True)
+        formato_celdas(sheet,'B1','Arial',9,True,True,'000000',True)
         combinar_celdas(sheet,'A1','A4')
         combinar_celdas(sheet,'E1','E4')
 
@@ -96,25 +102,12 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         sheet['D7'].alignment=Alignment(horizontal='center')
 
         sheet['D8']='Total'
-        formato_celdas(sheet,'D8','Arial',10,False,True,'000000',True)
+        formato_celdas(sheet,'D8','Arial',9,False,True,'000000',True)
         sheet['D8'].alignment=Alignment(horizontal='center')
 
         sheet['E8']='Importe'
-        formato_celdas(sheet,'E8','Arial',10,False,True,'000000',True)
+        formato_celdas(sheet,'E8','Arial',9,False,True,'000000',True)
         sheet['E8'].alignment=Alignment(horizontal='center')
-        
-
-        """for k in range(1,5):
-            sheet.cell(8,k).border = Border(left=Side(border_style=None, color='000000'),
-                                            right=Side(border_style=None, color='000000'),
-                                            top=Side(border_style='thin', color='000000'),
-                                            bottom=Side(border_style=None, color='000000'))"""
-
-
-        """sheet.cell(7,6).border = Border(left=Side(border_style='thin', color='000000'),
-                                        right=Side(border_style=None, color='000000'),
-                                        top=Side(border_style=None, color='000000'),
-                                        bottom=Side(border_style=None, color='000000'))"""
         #----------------------------------------------------------------
         #RECORRIENDO LOS DATOS DE CADA FINCA
         iterable=9
@@ -136,7 +129,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
                 celda_seccion=f'A{iterable}'
                 sheet[celda_seccion]=nombre_seccion
                 
-                formato_celdas(sheet,celda_seccion,'Arial',10,True,True,'000000',True)
+                formato_celdas(sheet,celda_seccion,'Arial',9,True,True,'000000',True)
                 iterable=iterable+1
 
                 subsecciones = secciones[s]['Subsecciones']
@@ -156,9 +149,11 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
                     #descripcion
                     descripcion = subsecciones[ss]['descripcion']
                     celda_col2=f'B{iterable}'
+                    celda_col2_fin = f'C{iterable}'
                     valor_col2=descripcion
                     sheet[celda_col2] = valor_col2
-
+                    combinar_celdas(sheet,celda_col2,celda_col2_fin)
+                    sheet[celda_col2].alignment=Alignment(horizontal='center')
                     #monto
                     monto = subsecciones[ss]['monto']
                     celda_col4=f'D{iterable}'
@@ -198,10 +193,10 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         celda_total_valor=f'E{iterable}'
         sheet[celda_total] = 'TOTAL'
 
-        formato_celdas(sheet,celda_total,'Arial',10,True,False,'000000')
+        formato_celdas(sheet,celda_total,'Arial',9,True,False,'000000')
         sheet[celda_total_valor]=celda_suma_expresion
         sheet[celda_total_valor].alignment=Alignment(horizontal='center')
-        formato_celdas(sheet,celda_total_valor,'Arial',10,True,False,'000000')
+        formato_celdas(sheet,celda_total_valor,'Arial',9,True,False,'000000')
 
         bordear_celdasv1(sheet,'A1','F8')#por alguna razon lo corre aunq marque error gaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
@@ -253,9 +248,15 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         combinar_celdas(sheet,valor_ini_CCI,valor_fin_CCI)
         sheet[valor_ini_CCI].alignment=Alignment(horizontal='center')
         
+        
+
         for fila in range(8,iterable):
             for columna in range(1,6):
-                
+                if (columna==1):
+                    sheet.cell(fila,columna).border = Border(left=Side(border_style='thin', color='000000'),
+                                                            right=Side(border_style=None, color='000000'),
+                                                            top=Side(border_style=None, color='000000'),
+                                                            bottom=Side(border_style=None, color='000000'))
                 if (fila==8):
                     #bordear_lado('arriba',sheet,fila,columna)
                     sheet.cell(fila,columna).border = Border(left=Side(border_style=None, color='000000'),
@@ -324,6 +325,11 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         sheet.add_image(finca,'E2') 
         sheet.cell(1,5).alignment = Alignment(horizontal='center',vertical='center')
 
+        sheet.cell(8,1).border = Border(left=Side(border_style='thin', color='000000'),
+                                        right=Side(border_style=None, color='000000'),
+                                        top=Side(border_style=None, color='000000'),
+                                        bottom=Side(border_style=None, color='000000'))
+
         ruta_excel='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas'
 
         nombre_excel = f'propietarioV4_{id}_{n_excel}'
@@ -331,13 +337,9 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         extension_excel = '.xlsx'
         #nombre del excel
         excel_guardar = ruta_excel+'/'+nombre_excel+extension_excel
-        
-        #excel_pdf_antes(n_excel,book)
         #guardando el libro
         book.save(excel_guardar)
         convertir_a_pdf(ruta_excel,nombre_excel)
-        #excel_pdf_aspose(excel_guardar,n_excel)
-        #yaaa(excel_guardar,n_excel)
         #aumentando el numero del excel a guardar
         n_excel=n_excel+1
         

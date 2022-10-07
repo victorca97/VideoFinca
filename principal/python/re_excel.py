@@ -115,13 +115,11 @@ def ancho_col(sheet):
         sheet.column_dimensions[col_letter].width = medida #NO ESTA EN PIXELES
         anchos=anchos+1
 
-def convertir_a_pdf(ruta_excel,nombre_archivo):
+def convertir_a_pdf(ruta_excel,nombre_archivo):#FALLA SI EL PDF YA EXISTE
     print('Iniciando ...')
     # Initialize new excel workbook
-    print(ruta_excel+'/'+nombre_archivo+'.xlsx')
     book = xw.Book(ruta_excel+'/'+nombre_archivo+'.xlsx')
     #book = xw.Book('C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/modificado.xlsx')#RUTA
-
     ruta_pdf='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/'
     nombre_pdf = nombre_archivo+'.pdf'
     pdf_path = ruta_pdf+nombre_pdf
