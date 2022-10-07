@@ -339,7 +339,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         excel_guardar = ruta_excel+'/'+nombre_excel+extension_excel
         #guardando el libro
         book.save(excel_guardar)
-        convertir_a_pdf(ruta_excel,nombre_excel)
+        convertir_a_pdf(excel_guardar,nombre_excel)
         #aumentando el numero del excel a guardar
         n_excel=n_excel+1
         

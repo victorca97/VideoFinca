@@ -7,6 +7,7 @@ from openpyxl.styles import *
 from openpyxl.utils import get_column_letter
 from openpyxl import load_workbook
 import xlwings as xw
+import time
 #import asposecells #PdfSaveOptions,PdfCompliance
 #from asposecells.api import Workbook,PdfSaveOptions,PdfCompliance
 
@@ -116,14 +117,18 @@ def ancho_col(sheet):
         anchos=anchos+1
 
 def convertir_a_pdf(ruta_excel,nombre_archivo):#FALLA SI EL PDF YA EXISTE
+    excel_app = xw.App(visible=False)
     print('Iniciando ...')
     # Initialize new excel workbook
-    book = xw.Book(ruta_excel+'/'+nombre_archivo+'.xlsx')
-    #book = xw.Book('C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/modificado.xlsx')#RUTA
+    #book = load_workbook(ruta_excel+'/'+nombre_archivo+'.xlsx')
+    #book = xw.Book(ruta_excel)#RUTA
+    excel_book = excel_app.books.open(ruta_excel)
     ruta_pdf='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/'
     nombre_pdf = nombre_archivo+'.pdf'
     pdf_path = ruta_pdf+nombre_pdf
     # Save excel workbook to pdf file
     print(f"Saving workbook as '{pdf_path}' ...")
-    book.api.ExportAsFixedFormat(0, pdf_path)
+    excel_book.api.ExportAsFixedFormat(0, pdf_path)
     print('conversion exitosa')
+    excel_book.close()
+    excel_app.quit()
