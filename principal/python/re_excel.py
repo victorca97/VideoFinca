@@ -8,9 +8,11 @@ from openpyxl.utils import get_column_letter
 from openpyxl import load_workbook
 import xlwings as xw
 import time
-#import asposecells #PdfSaveOptions,PdfCompliance
-#from asposecells.api import Workbook,PdfSaveOptions,PdfCompliance
-
+from PyPDF2 import PdfFileWriter, PdfFileReader
+from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor, OneCellAnchor
+from openpyxl.utils.units import pixels_to_EMU, cm_to_EMU
+from openpyxl.drawing.xdr import XDRPoint2D, XDRPositiveSize2D
+from PIL import Image
 def combinar_celdas(sheet,celda_inicial,celda_final,texto=''):
     sheet.merge_cells(f'{celda_inicial}:{celda_final}')
     if texto!='':
@@ -130,5 +132,68 @@ def convertir_a_pdf(ruta_excel,nombre_archivo):#FALLA SI EL PDF YA EXISTE
     print(f"Saving workbook as '{pdf_path}' ...")
     excel_book.api.ExportAsFixedFormat(0, pdf_path)
     print('conversion exitosa')
+
     excel_book.close()
     excel_app.quit()
+
+def poner_imagenes(sheet):
+    #insertando la imagen
+        #logo = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_ORIGINAL.png')
+        logo_pil = Image.open('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_ORIGINAL.png')
+        finca_pil = Image.open('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA.jpg')
+        
+        #establecer dimensiones
+        proporcion = 3
+        alto = 40
+        ancho = int(proporcion * alto)
+
+        #editar la imagen
+        logo_pil = logo_pil.resize((ancho,alto+5))#140 80 solo acepta enteros
+        logo_pil.save('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_MODIFICADO.png')
+
+        finca_pil = finca_pil.resize((ancho+3,alto))
+        finca_pil.save('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA_MODIFICADO.jpg')
+    
+        logo = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_MODIFICADO.png')
+        
+        p2e = pixels_to_EMU
+        c2e = cm_to_EMU
+        h, w = logo.height, logo.width
+        size = XDRPositiveSize2D(p2e(w), p2e(h))
+        # Calculated number of cells width or height from cm into EMUs
+        cellh = lambda x: c2e((x * 49.77)/99)
+        cellw = lambda x: c2e((x * (18.65-1.71))/10)
+
+        # Want to place image in row 5 (6 in excel), column 2 (C in excel)
+        # Also offset by half a column.
+        column = 0
+        coloffset = cellw(0.05)
+        row = 1
+        rowoffset = cellh(0.05)
+
+        marker = AnchorMarker(col=column, colOff=coloffset, row=row, rowOff=rowoffset)
+        logo.anchor = OneCellAnchor(_from=marker, ext=size)
+
+        sheet.add_image(logo)
+        
+
+        finca = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA_MODIFICADO.jpg')
+        p2e = pixels_to_EMU
+        c2e = cm_to_EMU
+        h, w = finca.height, finca.width
+        size = XDRPositiveSize2D(p2e(w), p2e(h))
+        # Calculated number of cells width or height from cm into EMUs
+        cellh = lambda x: c2e((x * 49.77)/99)
+        cellw = lambda x: c2e((x * (18.65-1.71))/10)
+
+        # Want to place image in row 5 (6 in excel), column 2 (C in excel)
+        # Also offset by half a column.
+        column = 4
+        coloffset = cellw(0.05)
+        row = 1
+        rowoffset = cellh(0.05)
+
+        marker = AnchorMarker(col=column, colOff=coloffset, row=row, rowOff=rowoffset)
+        finca.anchor = OneCellAnchor(_from=marker, ext=size)
+
+        sheet.add_image(finca) 

@@ -105,11 +105,11 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         sheet['D7'].alignment=Alignment(horizontal='center')
 
         sheet['D8']='Total'
-        formato_celdas(sheet,'D8','Arial',9,False,True,'000000',True)
+        formato_celdas(sheet,'D8','Calibri',11,False,True,'000000',True)
         sheet['D8'].alignment=Alignment(horizontal='center')
 
         sheet['E8']='Importe'
-        formato_celdas(sheet,'E8','Arial',9,False,True,'000000',True)
+        formato_celdas(sheet,'E8','Calibri',11,False,True,'000000',True)
         sheet['E8'].alignment=Alignment(horizontal='center')
         #----------------------------------------------------------------
         #RECORRIENDO LOS DATOS DE CADA FINCA
@@ -132,7 +132,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
                 celda_seccion=f'A{iterable}'
                 sheet[celda_seccion]=nombre_seccion
                 
-                formato_celdas(sheet,celda_seccion,'Arial',9,True,True,'000000',True)
+                formato_celdas(sheet,celda_seccion,'Calibri',11,True,True,'000000',True)
                 iterable=iterable+1
 
                 subsecciones = secciones[s]['Subsecciones']
@@ -250,8 +250,6 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         combinar_celdas(sheet,valor_ini_ncuenta,valor_fin_ncuenta)
         combinar_celdas(sheet,valor_ini_CCI,valor_fin_CCI)
         sheet[valor_ini_CCI].alignment=Alignment(horizontal='center')
-        
-        
 
         for fila in range(8,iterable):
             for columna in range(1,6):
@@ -300,66 +298,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         
         combinar_celdas(sheet,celdaini_mensaje,celdafin_mensaje,mensaje_extra)
         sheet.cell(ultima_fila+2,1).alignment = Alignment(horizontal='center',vertical='center')
-        #----------------------------------------------------------------
-        #insertando la imagen
-        #logo = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_ORIGINAL.png')
-        logo_pil = Image.open('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_ORIGINAL.png')
-        finca_pil = Image.open('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA.jpg')
-        proporcion = 3
-        alto = 40
-        ancho = int(proporcion * alto)
-
-        #editar la imagen
-        logo_pil = logo_pil.resize((ancho,alto))#140 80 solo acepta enteros
-        logo_pil.save('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_MODIFICADO.png')
-
-        finca_pil = finca_pil.resize((ancho,alto))
-        finca_pil.save('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA_MODIFICADO.jpg')
-    
-        logo = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_MODIFICADO.png')
-        
-        p2e = pixels_to_EMU
-        c2e = cm_to_EMU
-        h, w = logo.height, logo.width
-        size = XDRPositiveSize2D(p2e(w), p2e(h))
-        # Calculated number of cells width or height from cm into EMUs
-        cellh = lambda x: c2e((x * 49.77)/99)
-        cellw = lambda x: c2e((x * (18.65-1.71))/10)
-
-        # Want to place image in row 5 (6 in excel), column 2 (C in excel)
-        # Also offset by half a column.
-        column = 0
-        coloffset = cellw(0.05)
-        row = 1
-        rowoffset = cellh(0.05)
-
-        marker = AnchorMarker(col=column, colOff=coloffset, row=row, rowOff=rowoffset)
-        logo.anchor = OneCellAnchor(_from=marker, ext=size)
-
-        sheet.add_image(logo)
-        
-
-        finca = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA_MODIFICADO.jpg')
-        p2e = pixels_to_EMU
-        c2e = cm_to_EMU
-        h, w = finca.height, finca.width
-        size = XDRPositiveSize2D(p2e(w), p2e(h))
-        # Calculated number of cells width or height from cm into EMUs
-        cellh = lambda x: c2e((x * 49.77)/99)
-        cellw = lambda x: c2e((x * (18.65-1.71))/10)
-
-        # Want to place image in row 5 (6 in excel), column 2 (C in excel)
-        # Also offset by half a column.
-        column = 4
-        coloffset = cellw(0.05)
-        row = 1
-        rowoffset = cellh(0.05)
-
-        marker = AnchorMarker(col=column, colOff=coloffset, row=row, rowOff=rowoffset)
-        finca.anchor = OneCellAnchor(_from=marker, ext=size)
-
-        sheet.add_image(finca) 
-
+        poner_imagenes(sheet)
 
         sheet.cell(1,5).alignment = Alignment(horizontal='center',vertical='center')
 
@@ -379,6 +318,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         #guardando el libro
         book.save(excel_guardar)
         convertir_a_pdf(excel_guardar,nombre_excel)
+
         #aumentando el numero del excel a guardar
         n_excel=n_excel+1
         
