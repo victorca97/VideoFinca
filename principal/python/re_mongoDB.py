@@ -10,7 +10,9 @@ from openpyxl.styles import *
 from openpyxl.utils import get_column_letter
 from urls import *
 from PIL import Image
-
+from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor, OneCellAnchor
+from openpyxl.utils.units import pixels_to_EMU, cm_to_EMU
+from openpyxl.drawing.xdr import XDRPoint2D, XDRPositiveSize2D
 #PARA CONECTARSE AL MONGO DB
 """MONGO_HOST="localhost"
 MONGO_PUERTO="27017"
@@ -34,7 +36,8 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         
         #modificando el excel
         #ancho_col(sheet)
-        lista_ancho_columnas=[17,18,14,10,17]
+        #[17,18,14,10,17] original
+        lista_ancho_columnas=[17,20,15,20,17]
         anchos=0
         for columna in range(1,6):
             col_letter = get_column_letter(columna)
@@ -193,10 +196,10 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         celda_total_valor=f'E{iterable}'
         sheet[celda_total] = 'TOTAL'
 
-        formato_celdas(sheet,celda_total,'Arial',9,True,False,'000000')
+        formato_celdas(sheet,celda_total,'Calibri',11,True,False,'000000')
         sheet[celda_total_valor]=celda_suma_expresion
         sheet[celda_total_valor].alignment=Alignment(horizontal='center')
-        formato_celdas(sheet,celda_total_valor,'Arial',9,True,False,'000000')
+        formato_celdas(sheet,celda_total_valor,'Calibri',11,True,False,'000000')
 
         bordear_celdasv1(sheet,'A1','F8')#por alguna razon lo corre aunq marque error gaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
@@ -294,12 +297,6 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         celdafin_mensaje =f'E{ultima_fila+3}'
         end = ultima_fila+3
         bordear_celdasv2(sheet,ultima_fila,end)
-        """for i in range (ultima_fila,ultima_fila+4):
-            for j in range (1,6):
-                sheet.cell(i,j).border = Border(left=Side(border_style='thin', color='000000'),
-                                                right=Side(border_style='thin', color='000000'),
-                                                top=Side(border_style='thin', color='000000'),
-                                                bottom=Side(border_style='thin', color='000000'))"""
         
         combinar_celdas(sheet,celdaini_mensaje,celdafin_mensaje,mensaje_extra)
         sheet.cell(ultima_fila+2,1).alignment = Alignment(horizontal='center',vertical='center')
@@ -312,17 +309,58 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         alto = 40
         ancho = int(proporcion * alto)
 
+        #editar la imagen
         logo_pil = logo_pil.resize((ancho,alto))#140 80 solo acepta enteros
         logo_pil.save('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_MODIFICADO.png')
 
         finca_pil = finca_pil.resize((ancho,alto))
         finca_pil.save('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA_MODIFICADO.jpg')
-
+    
         logo = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_MODIFICADO.png')
-        sheet.add_image(logo,'A2')
+        
+        p2e = pixels_to_EMU
+        c2e = cm_to_EMU
+        h, w = logo.height, logo.width
+        size = XDRPositiveSize2D(p2e(w), p2e(h))
+        # Calculated number of cells width or height from cm into EMUs
+        cellh = lambda x: c2e((x * 49.77)/99)
+        cellw = lambda x: c2e((x * (18.65-1.71))/10)
+
+        # Want to place image in row 5 (6 in excel), column 2 (C in excel)
+        # Also offset by half a column.
+        column = 0
+        coloffset = cellw(0.05)
+        row = 1
+        rowoffset = cellh(0.05)
+
+        marker = AnchorMarker(col=column, colOff=coloffset, row=row, rowOff=rowoffset)
+        logo.anchor = OneCellAnchor(_from=marker, ext=size)
+
+        sheet.add_image(logo)
+        
 
         finca = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA_MODIFICADO.jpg')
-        sheet.add_image(finca,'E2') 
+        p2e = pixels_to_EMU
+        c2e = cm_to_EMU
+        h, w = finca.height, finca.width
+        size = XDRPositiveSize2D(p2e(w), p2e(h))
+        # Calculated number of cells width or height from cm into EMUs
+        cellh = lambda x: c2e((x * 49.77)/99)
+        cellw = lambda x: c2e((x * (18.65-1.71))/10)
+
+        # Want to place image in row 5 (6 in excel), column 2 (C in excel)
+        # Also offset by half a column.
+        column = 4
+        coloffset = cellw(0.05)
+        row = 1
+        rowoffset = cellh(0.05)
+
+        marker = AnchorMarker(col=column, colOff=coloffset, row=row, rowOff=rowoffset)
+        finca.anchor = OneCellAnchor(_from=marker, ext=size)
+
+        sheet.add_image(finca) 
+
+
         sheet.cell(1,5).alignment = Alignment(horizontal='center',vertical='center')
 
         sheet.cell(8,1).border = Border(left=Side(border_style='thin', color='000000'),
@@ -337,6 +375,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         extension_excel = '.xlsx'
         #nombre del excel
         excel_guardar = ruta_excel+'/'+nombre_excel+extension_excel
+
         #guardando el libro
         book.save(excel_guardar)
         convertir_a_pdf(excel_guardar,nombre_excel)
