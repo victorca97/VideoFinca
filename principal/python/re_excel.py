@@ -197,3 +197,12 @@ def poner_imagenes(sheet):
         finca.anchor = OneCellAnchor(_from=marker, ext=size)
 
         sheet.add_image(finca) 
+
+def ancho_columnas_parametros(sheet):
+    lista_ancho_columnas=[17,20,15,20,17]
+    anchos=0
+    for columna in range(1,6):
+        col_letter = get_column_letter(columna)
+        medida=lista_ancho_columnas[anchos]
+        sheet.column_dimensions[col_letter].width = medida #NO ESTA EN PIXELES
+        anchos=anchos+1

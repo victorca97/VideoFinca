@@ -37,13 +37,8 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         #modificando el excel
         #ancho_col(sheet)
         #[17,18,14,10,17] original
-        lista_ancho_columnas=[17,20,15,20,17]
-        anchos=0
-        for columna in range(1,6):
-            col_letter = get_column_letter(columna)
-            medida=lista_ancho_columnas[anchos]
-            sheet.column_dimensions[col_letter].width = medida #NO ESTA EN PIXELES
-            anchos=anchos+1
+        ancho_columnas_parametros(sheet)
+
         combinar_celdas(sheet,'B1','D1','JUNTA DE PROPIETARIOS')
         sheet['B1'].alignment=Alignment(horizontal="center")
 
@@ -266,16 +261,9 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
                                                             bottom=Side(border_style=None, color='000000'))
                 if (columna==5):
                     bordear_lado('derecha',sheet,fila,columna)
-                    """sheet.cell(fila,columna).border = Border(left=Side(border_style=None, color='000000'),
-                                                            right=Side(border_style='thin', color='000000'),
-                                                            top=Side(border_style=None, color='000000'),
-                                                            bottom=Side(border_style=None, color='000000'))"""
+                    
                 if (fila==(iterable)):
                     bordear_lado('abajo',sheet,fila,columna)
-                    """sheet.cell(fila,columna).border = Border(left=Side(border_style=None, color='000000'),
-                                                            right=Side(border_style=None, color='000000'),
-                                                            top=Side(border_style=None, color='000000'),
-                                                            bottom=Side(border_style='thin', color='000000'))"""
         
         #fila del titular ultima_fila+1
         celda_vacia_ini=f'A{ultima_fila+1}'
