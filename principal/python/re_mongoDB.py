@@ -1,6 +1,3 @@
-from pymongo import MongoClient
-from bson.objectid import ObjectId
-from bson.json_util import dumps
 from openpyxl.workbook import Workbook
 import openpyxl
 from openpyxl import Workbook
@@ -10,9 +7,7 @@ from openpyxl.styles import *
 from openpyxl.utils import get_column_letter
 from urls import *
 from PIL import Image
-from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, TwoCellAnchor, OneCellAnchor
-from openpyxl.utils.units import pixels_to_EMU, cm_to_EMU
-from openpyxl.drawing.xdr import XDRPoint2D, XDRPositiveSize2D
+
 #PARA CONECTARSE AL MONGO DB
 """MONGO_HOST="localhost"
 MONGO_PUERTO="27017"
@@ -28,17 +23,14 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
     #----------------------------------------------------------------
     prop=json[0]['Propietarios']#para leer el json
     for i in range(len(prop)):
-        id = prop[i]['_id']
+        
         #CREANDO EL EXCEL
         total_monto=0
         book=Workbook()
         sheet= book.active
-        
-        #modificando el excel
-        #ancho_col(sheet)
+
         #[17,18,14,10,17] original
         ancho_columnas_parametros(sheet)
-
         combinar_celdas(sheet,'B1','D1','JUNTA DE PROPIETARIOS')
         sheet['B1'].alignment=Alignment(horizontal="center")
 
@@ -46,7 +38,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
         sheet['B2'].alignment=Alignment(horizontal="center")
         
         #DIRECCION
-
+        id = prop[i]['_id']
         direccion=json[0]['Direccion']
 
         combinar_celdas(sheet,'B3','D3',direccion)
@@ -181,6 +173,7 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
 
                     celda_final_suma=celda_col5
                     iterable = iterable + 1
+        
         #La suma total
         total_monto_float="{:.2f}".format(total_monto)
         if (tipo_moneda!='€'):
@@ -254,7 +247,6 @@ def principalv2(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pa
                                                             top=Side(border_style=None, color='000000'),
                                                             bottom=Side(border_style=None, color='000000'))
                 if (fila==8):
-                    #bordear_lado('arriba',sheet,fila,columna)
                     sheet.cell(fila,columna).border = Border(left=Side(border_style=None, color='000000'),
                                                             right=Side(border_style=None, color='000000'),
                                                             top=Side(border_style='thin', color='000000'),

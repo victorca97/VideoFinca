@@ -11,5 +11,3 @@ def urls():
         return json
     except  Exception as e:
         print('error: ',e)
-        #print('pipipipi')
- 
