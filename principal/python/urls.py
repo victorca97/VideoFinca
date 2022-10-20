@@ -1,9 +1,8 @@
-from tkinter import E
 import requests
 
-def urls():
+def get_informacion():
     try:
-        url_propietarios='http://192.168.195.12:4000/berrios'
+        url_propietarios=f'http://192.168.195.12:4000/berrios'
 
         d = requests.get(url_propietarios)
         json=d.json()
