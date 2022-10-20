@@ -81,7 +81,6 @@ def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de 
 
             nombres_completos = prop[i]['Nombres_y_Apellidos'] #nombre del propietario
 
-
             sheet['B6']=nombres_completos
             sheet['B6'].alignment=Alignment(horizontal='center')
             sheet['C7']='Total Porc. Part.'

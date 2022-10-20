@@ -27,10 +27,10 @@ def generar_doc_finca(tipo): #devuelve una matriz con los sgtes datos
     else:
         print('tipo de extension incorrecto (poner xlsx o pdf)')
 
+#PRUEBA
 tipo = 'pdf'       
 matriz = generar_doc_finca(tipo)
-
-print(matriz)
+#print(matriz)
 """
     {
         nombre: "nombre",

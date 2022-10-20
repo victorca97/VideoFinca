@@ -115,6 +115,7 @@ def ancho_col(sheet):
         anchos=anchos+1
 
 def convertir_pdf(varbuffer,cantidad_propietarios,path): 
+    #version original
     """list_dir = [] 
     list_dir = os.listdir(path)
     for file in list_dir: 
@@ -130,6 +131,7 @@ def convertir_pdf(varbuffer,cantidad_propietarios,path):
             #nombre_propietario = eduardo berrios
             ruta_excel = path+'/'+nombre_archivo
             pdf_codificado = convertir_a_pdf(ruta_excel,nombre_sin_extension)"""
+    #version adaptada
     for i in range(cantidad_propietarios):
         if (varbuffer[i][0]!=1):
             nombre_archivo = f'propietario_{varbuffer[i][1]}'
