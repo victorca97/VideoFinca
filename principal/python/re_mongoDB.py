@@ -4,6 +4,9 @@ from openpyxl.styles import *
 
 #esta version lee por propietarios
 def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
+    print('--------->',json)
+
+    print('--------->',json[0])
     prop=json[0]['Propietarios']#para leer el json
     
     cantidad_propietarios = len(prop)

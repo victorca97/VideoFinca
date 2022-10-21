@@ -1,6 +1,5 @@
 from re_mongoDB import*
 from re_excel import convertir_pdf
-from urls import get_informacion
 """if __name__ == "__main__":
     while True:
         json = urls()
@@ -8,14 +7,14 @@ from urls import get_informacion
         sys.exit()"""
         #crear una funcion asincrona
 
-def generar_doc_finca(tipo): #devuelve una matriz con los sgtes datos
+def generar_doc_finca(tipo,json): #devuelve una matriz con los sgtes datos
     # estado: si se genero correctamente el excel
     # propietario: nombre del propietario
     # excel: excel codificado del propietario
     # pdf : pdf codificado del propietario
     # print("JSONNNNNNNNNNNNNNNNN",json)
     path = '../excels/pruebas'#ruta donde se guardaran los excels y pdfs
-    json = get_informacion()#jala el JSON con toda la informacion
+    #json = get_informacion()#jala el JSON con toda la informacion
     varbuffer,cantidad_propietarios = generar_excel(json) #devuelve la lista con estado,propietario,excel codificado
     if (tipo == 'xlsx'):
         #convertir_pdf(path,tipo)#genera los pdfs
@@ -28,8 +27,8 @@ def generar_doc_finca(tipo): #devuelve una matriz con los sgtes datos
         print('tipo de extension incorrecto (poner xlsx o pdf)')
 
 #PRUEBA
-tipo = 'pdf' #'xlsx' o 'pdf'       
-matriz = generar_doc_finca(tipo)
+#tipo = 'pdf' #'xlsx' o 'pdf'       
+#matriz = generar_doc_finca(tipo)
 #print(matriz)
 """
     {
