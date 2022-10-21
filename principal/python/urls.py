@@ -2,7 +2,7 @@ import requests
 
 def get_informacion():
     try:
-        url_propietarios=f'http://192.168.195.12:4000/berrios'
+        url_propietarios=f'http://192.168.195.12:4000/berrios'#deberia de elegir cualquier finca
 
         d = requests.get(url_propietarios)
         json=d.json()

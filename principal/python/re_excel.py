@@ -1,5 +1,6 @@
 import base64
 import os
+from tkinter import E
 import openpyxl
 from openpyxl.styles import *
 from openpyxl.utils import get_column_letter
@@ -8,6 +9,7 @@ from openpyxl.drawing.spreadsheet_drawing import AnchorMarker, OneCellAnchor
 from openpyxl.utils.units import pixels_to_EMU, cm_to_EMU
 from openpyxl.drawing.xdr import XDRPositiveSize2D
 from PIL import Image
+import pathlib
 
 def combinar_celdas(sheet,celda_inicial,celda_final,texto=''):
     sheet.merge_cells(f'{celda_inicial}:{celda_final}')
@@ -143,28 +145,45 @@ def convertir_pdf(varbuffer,cantidad_propietarios,path):
 def convertir_a_pdf(ruta_excel,nombre_archivo):#FALLA SI EL PDF YA EXISTE
     excel_app = xw.App(visible=False)
     print('Iniciando ...')
-    # Initialize new excel workbook
-    #book = load_workbook(ruta_excel+'/'+nombre_archivo+'.xlsx')
-    #book = xw.Book(ruta_excel)#RUTA
-    excel_book = excel_app.books.open(ruta_excel)
-    ruta_pdf='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/'
-    nombre_pdf = nombre_archivo+'.pdf'
-    pdf_path = ruta_pdf+nombre_pdf
-    # Save excel workbook to pdf file
-    print(f"Saving workbook as '{pdf_path}' ...")
-    excel_book.api.ExportAsFixedFormat(0, pdf_path)
-    print('conversion exitosa')
-    excel_book.close()
-    excel_app.quit()
-    #convertir_base64 el PDF
-    pdf_codificado = convertir_base64(pdf_path)
-    return pdf_codificado
+    try:
+        # Initialize new excel workbook
+        #book = load_workbook(ruta_excel+'/'+nombre_archivo+'.xlsx')
+        #book = xw.Book(ruta_excel)#RUTA
+        excel_book = excel_app.books.open(ruta_excel)
+
+        ruta = str(pathlib.Path().absolute())
+        a=ruta.replace('\\','/')
+        x = a.find("/",-1,0)
+        len_x=len(a)
+        i=2
+        while(x==-1):
+            x = a.find("/",len_x-i,len_x-1)
+            i=i+1
+        ruta_pdf = a[0:x+1]
+
+        # ruta_pdf='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/'
+
+        nombre_pdf = nombre_archivo+'.pdf'
+        pdf_path = ruta_pdf+nombre_pdf
+        # Save excel workbook to pdf file
+        print(f"Saving workbook as '{pdf_path}' ...")
+        excel_book.api.ExportAsFixedFormat(0, pdf_path)
+        print('conversion exitosa')
+        excel_book.close()
+        excel_app.quit()
+        #convertir_base64 el PDF
+        pdf_codificado = convertir_base64(pdf_path)
+        return pdf_codificado
+    except Exception as e:
+        excel_book.close()
+        excel_app.quit()
+        print(e)
 
 def poner_imagenes(sheet):
     #insertando la imagen
         #logo = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_ORIGINAL.png')
-        logo_pil = Image.open('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_ORIGINAL.png')
-        finca_pil = Image.open('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA.jpg')
+        logo_pil = Image.open('../excels/recursos/LOGOVIDEOFINCA_ORIGINAL.png')
+        finca_pil = Image.open('../excels/recursos/FINCA.jpg')
         
         #establecer dimensiones
         proporcion = 3
@@ -173,12 +192,12 @@ def poner_imagenes(sheet):
 
         #editar la imagen
         logo_pil = logo_pil.resize((ancho,alto+5))#140 80 solo acepta enteros
-        logo_pil.save('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_MODIFICADO.png')
+        logo_pil.save('../excels/recursos/LOGOVIDEOFINCA_MODIFICADO.png')
 
         finca_pil = finca_pil.resize((ancho+3,alto))
-        finca_pil.save('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA_MODIFICADO.jpg')
+        finca_pil.save('../excels/recursos/FINCA_MODIFICADO.jpg')
     
-        logo = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_MODIFICADO.png')
+        logo = openpyxl.drawing.image.Image('../excels/recursos/LOGOVIDEOFINCA_MODIFICADO.png')
         
         p2e = pixels_to_EMU
         c2e = cm_to_EMU
@@ -201,7 +220,7 @@ def poner_imagenes(sheet):
         sheet.add_image(logo)
         
 
-        finca = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/FINCA_MODIFICADO.jpg')
+        finca = openpyxl.drawing.image.Image('../excels/recursos/FINCA_MODIFICADO.jpg')
         p2e = pixels_to_EMU
         c2e = cm_to_EMU
         h, w = finca.height, finca.width
@@ -241,7 +260,7 @@ def convertir_base64(ruta):# ruta: C:/Users/DELL/Desktop/excel.xlsx
 
 def decodificar_base64(codificado,nombre_archivo,extension):
     base64_img_bytes = codificado.encode('utf-8')
-    with open(f'C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/{nombre_archivo}_decodificado.{extension}', 'wb') as file_to_save:
+    with open(f'C:/Users/DELL/Desktop/{nombre_archivo}_decodificado.{extension}', 'wb') as file_to_save:
         decoded_image_data = base64.decodebytes(base64_img_bytes)
         file_to_save.write(decoded_image_data)
 

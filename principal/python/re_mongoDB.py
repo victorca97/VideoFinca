@@ -5,8 +5,9 @@ from openpyxl.styles import *
 #esta version lee por propietarios
 def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
     prop=json[0]['Propietarios']#para leer el json
-    cantidad_propietarios = len(prop)
     
+    cantidad_propietarios = len(prop)
+
     #Estado 0 -> CREADO CON EXITO , 1 -> FALLO
     #           Estado / Cliente / Codificado excel 
     #Cliente 1
@@ -117,7 +118,7 @@ def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de 
 
                     nombre = secciones[s]['nombre']
                     
-                    nombre_seccion= id_seccion+'-'+nombre
+                    nombre_seccion= nombre
                     celda_seccion=f'A{iterable}'
                     sheet[celda_seccion]=nombre_seccion
                     
@@ -191,7 +192,7 @@ def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de 
             sheet[celda_total_valor].alignment=Alignment(horizontal='center')
             formato_celdas(sheet,celda_total_valor,'Calibri',11,True,False,'000000')
 
-            bordear_celdasv1(sheet,'A1','F8')#por alguna razon lo corre aunq marque error gaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+            bordear_celdasv1(sheet,'A1','F8')
 
             iterable= iterable + 1
 
@@ -286,7 +287,7 @@ def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de 
                                             top=Side(border_style=None, color='000000'),
                                             bottom=Side(border_style=None, color='000000'))
 
-            ruta_excel='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas'
+            ruta_excel='../excels/pruebas'
             nombres_completos = nombres_completos.replace(' ','_')#habia un problema si dejaba los nombres con espacio
             #nombre_excel = f'propietario_{id}_{n_excel}'
             nombre_excel = f'propietario_{nombres_completos}.xlsx'

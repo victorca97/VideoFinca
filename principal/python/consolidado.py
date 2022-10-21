@@ -13,8 +13,8 @@ def generar_doc_finca(tipo): #devuelve una matriz con los sgtes datos
     # propietario: nombre del propietario
     # excel: excel codificado del propietario
     # pdf : pdf codificado del propietario
-
-    path = 'C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas'#ruta donde se guardaran los excels y pdfs
+    # print("JSONNNNNNNNNNNNNNNNN",json)
+    path = '../excels/pruebas'#ruta donde se guardaran los excels y pdfs
     json = get_informacion()#jala el JSON con toda la informacion
     varbuffer,cantidad_propietarios = generar_excel(json) #devuelve la lista con estado,propietario,excel codificado
     if (tipo == 'xlsx'):
@@ -28,7 +28,7 @@ def generar_doc_finca(tipo): #devuelve una matriz con los sgtes datos
         print('tipo de extension incorrecto (poner xlsx o pdf)')
 
 #PRUEBA
-tipo = 'pdf'       
+tipo = 'pdf' #'xlsx' o 'pdf'       
 matriz = generar_doc_finca(tipo)
 #print(matriz)
 """
