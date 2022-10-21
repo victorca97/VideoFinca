@@ -3,11 +3,17 @@ from flask_pymongo import PyMongo
 from bson import json_util
 from bson.objectid import ObjectId
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from flask_cors import CORS
 app = Flask(__name__)
 #app.secret_key = 'myawesomesecretkey'
 app.config['MONGO_URI'] = 'mongodb://localhost/videofincaDB'
 mongo = PyMongo(app)
+CORS(app)
+cors=CORS(app,resource={
+    r"/*":{
+        "origins":"*"
+    }
+})
 
 @app.route("/berrios", methods=["GET"])
 def obtener_berrios():
@@ -97,15 +103,38 @@ def crear_plantilla():
     Seccion = request.json["Seccion"]
     if Finca or Seccion:
         id = mongo.db.plantilla.insert_one(
-            { "Finca":Finca, "Seccion":Seccion})
+            { "_id":Finca, "Finca":Finca, "Seccion":Seccion})
         response = {
-            "_id":      str(id),
+            "_id": str(id),
             "Finca":Finca,
             "Seccion":Seccion,
         }
-        return response
+        return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
     else:
         return not_found()
+
+@app.route("/plantilla", methods=["PUT"])
+def actualizar_plantilla():
+    print(request.json)
+    id= request.json["_id"]
+    Finca = request.json["Finca"]
+    Seccion = request.json["Seccion"]
+    if Finca or Seccion:
+        response = {"$set":{
+            "_id": str(id),
+            "Finca":Finca,
+            "Seccion":Seccion,
+            }
+        }
+        filter={
+            "_id": str(id), 
+        }
+        id = mongo.db.plantilla.update_one(filter, response)
+
+        return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
+    else:
+        return not_found()
+
 
 @app.route("/plantilla", methods=["DELETE"])
 def elimiar_plantilla():
