@@ -2,8 +2,8 @@ from flask import Flask, jsonify, request, Response
 from flask_pymongo import PyMongo
 from bson import json_util
 from bson.objectid import ObjectId
-from werkzeug.security import generate_password_hash, check_password_hash
 from flask_cors import CORS
+from consolidado import generar_doc_finca
 app = Flask(__name__)
 #app.secret_key = 'myawesomesecretkey'
 app.config['MONGO_URI'] = 'mongodb://localhost/videofincaDB'
@@ -18,11 +18,12 @@ cors=CORS(app,resource={
 @app.route("/berrios", methods=["GET"])
 def obtener_berrios():
     propiedades = json_util.loads(json_util.dumps(mongo.db.propiedades.find()))[0]
+    print("PROPIEDADES  ",propiedades)
     for propiedad in propiedades:
             plantilla2=[
             { 
             "$match": {
-                "_id": 'Finca0001' 
+                "_id": 'Finca001' 
             }
             },  
             {
@@ -42,9 +43,15 @@ def obtener_berrios():
             }
             }
             ]
+            # print("PLANTILLA",   plantilla2)
             resultados2 =mongo.db.propiedades.aggregate(plantilla2)
+            # print("RESULTADOS ", resultados2)
             response=json_util.dumps(resultados2)
-    return Response(response,mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
+            # print("RESPONSE ", response)
+            tipo = 'xlsx'
+            buffer = generar_doc_finca(tipo,response)
+            
+    return Response(json_util.dumps(buffer),mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
 @app.route("/propiedades", methods=["GET"])
 def obtener_propiedades():
@@ -226,6 +233,14 @@ def actualizar_porpietario(_id):
         return response
     else:
       return not_found()
+
+
+@app.route("/codificado/<id>", methods=["GET"])#el id sera la finca
+def obtener_codificado(id):
+    plantilla = mongo.db.plantilla.find({'Finca': id, })
+    response = json_util.dumps(plantilla)
+    return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
+
 
 @app.errorhandler(404)
 def not_found(error=None):
