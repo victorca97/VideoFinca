@@ -1,6 +1,3 @@
-import base64
-import os
-from tkinter import E
 import openpyxl
 from openpyxl.styles import *
 from openpyxl.utils import get_column_letter
@@ -10,7 +7,9 @@ from openpyxl.utils.units import pixels_to_EMU, cm_to_EMU
 from openpyxl.drawing.xdr import XDRPositiveSize2D
 from PIL import Image
 import pathlib
-
+import pythoncom
+import shutil
+import time
 def combinar_celdas(sheet,celda_inicial,celda_final,texto=''):
     sheet.merge_cells(f'{celda_inicial}:{celda_final}')
     if texto!='':
@@ -116,7 +115,7 @@ def ancho_col(sheet):
         sheet.column_dimensions[col_letter].width = medida #NO ESTA EN PIXELES
         anchos=anchos+1
 
-def convertir_pdf(varbuffer,cantidad_propietarios,path): 
+def convertir_pdf(varbuffer,cantidad_propietarios): 
     #version original
     """list_dir = [] 
     list_dir = os.listdir(path)
@@ -134,37 +133,61 @@ def convertir_pdf(varbuffer,cantidad_propietarios,path):
             ruta_excel = path+'/'+nombre_archivo
             pdf_codificado = convertir_a_pdf(ruta_excel,nombre_sin_extension)"""
     #version adaptada
-    for i in range(cantidad_propietarios):
+    """for i in range(cantidad_propietarios):
         if (varbuffer[i][0]!=1):
             nombre_archivo = f'propietario_{varbuffer[i][1]}'
             ruta_excel = path+'/'+nombre_archivo+'.xlsx'
             pdf_codificado = convertir_a_pdf(ruta_excel,nombre_archivo)
             varbuffer[i][3]= pdf_codificado
-    return varbuffer
+    return varbuffer"""
 
-def convertir_a_pdf(ruta_excel,nombre_archivo):#FALLA SI EL PDF YA EXISTE
+    # version q funcionaba
+    json_rutas_pdf = []
+    print('CANTIDAD PROPIETARIOS >>>>>>>>>>>',cantidad_propietarios)
+    for i in range(cantidad_propietarios):
+        if (varbuffer[i][0]!=1):
+            ruta = str(pathlib.Path().absolute())
+            a=ruta.replace('\\','/')
+            x = a.rfind("/")
+            nombre_propietario = varbuffer[i][1]
+            ruta_xls = a[0:x+1]+"excels/temp/propietario_"+nombre_propietario+".xlsx"
+            #nombre_archivo = f'propietario_{varbuffer[i][1]}'
+            #ruta_excel = path+'/'+nombre_archivo+'.xlsx'
+            # print(ruta)
+            pdf_path = convertir_a_pdf(ruta_xls)
+            print('CREO EL  PDF N~>>>>>>>>>',i)
+            #varbuffer[i][3]= pdf_codificado
+            nombres_completos = varbuffer[i][1]
+            estado = varbuffer[i][0]
+            diccionario_info = {"cliente":nombres_completos,"estado":estado,"ruta_pdf":pdf_path}
+            json_rutas_pdf.append(diccionario_info)
+    return json_rutas_pdf
+
+def pdf_versionb2(ruta_excel):
+    excel_app = xw.App(visible=False)
+    print('Iniciando')
+    excel_book = excel_app.books.open(ruta_excel)
+    pdf_path = ruta_excel.replace('xlsx','pdf')
+    # Save excel workbook to pdf file
+    print(f"Saving workbook as '{pdf_path}' ...")
+    excel_book.api.ExportAsFixedFormat(0, pdf_path)
+    print('conversion exitosa')
+    excel_book.close()
+    excel_app.quit()
+    #convertir_base64 el PDF
+    return pdf_path
+    
+def convertir_a_pdf(ruta_excel):#FALLA SI EL PDF YA EXISTE
+    pythoncom.CoInitialize()#nueva adicion
     excel_app = xw.App(visible=False)
     print('Iniciando ...')
+    excel_book = excel_app.books.open(ruta_excel)
     try:
         # Initialize new excel workbook
         #book = load_workbook(ruta_excel+'/'+nombre_archivo+'.xlsx')
         #book = xw.Book(ruta_excel)#RUTA
-        excel_book = excel_app.books.open(ruta_excel)
-
-        ruta = str(pathlib.Path().absolute())
-        a=ruta.replace('\\','/')
-        x = a.find("/",-1,0)
-        len_x=len(a)
-        i=2
-        while(x==-1):
-            x = a.find("/",len_x-i,len_x-1)
-            i=i+1
-        ruta_pdf = a[0:x+1]
-
-        # ruta_pdf='C:/Users/DELL/Desktop/angular/mongodb/principal/excels/pruebas/'
-
-        nombre_pdf = nombre_archivo+'.pdf'
-        pdf_path = ruta_pdf+nombre_pdf
+        #excel_book = excel_app.books.open(ruta_excel)
+        pdf_path = ruta_excel.replace('xlsx','pdf')
         # Save excel workbook to pdf file
         print(f"Saving workbook as '{pdf_path}' ...")
         excel_book.api.ExportAsFixedFormat(0, pdf_path)
@@ -172,18 +195,19 @@ def convertir_a_pdf(ruta_excel,nombre_archivo):#FALLA SI EL PDF YA EXISTE
         excel_book.close()
         excel_app.quit()
         #convertir_base64 el PDF
-        pdf_codificado = convertir_base64(pdf_path)
-        return pdf_codificado
+        return pdf_path
     except Exception as e:
         excel_book.close()
         excel_app.quit()
         print(e)
+        error = e
+        return error
 
 def poner_imagenes(sheet):
     #insertando la imagen
         #logo = openpyxl.drawing.image.Image('C:/Users/DELL/Desktop/angular/mongodb/principal/LOGOVIDEOFINCA_ORIGINAL.png')
-        logo_pil = Image.open('../excels/recursos/LOGOVIDEOFINCA_ORIGINAL.png')
-        finca_pil = Image.open('../excels/recursos/FINCA.jpg')
+        logo_pil = Image.open('../excels/archivos/LOGOVIDEOFINCA_ORIGINAL.png')
+        finca_pil = Image.open('../excels/archivos/FINCA.jpg')
         
         #establecer dimensiones
         proporcion = 3
@@ -192,12 +216,12 @@ def poner_imagenes(sheet):
 
         #editar la imagen
         logo_pil = logo_pil.resize((ancho,alto+5))#140 80 solo acepta enteros
-        logo_pil.save('../excels/recursos/LOGOVIDEOFINCA_MODIFICADO.png')
+        logo_pil.save('../excels/archivos/LOGOVIDEOFINCA_MODIFICADO.png')
 
         finca_pil = finca_pil.resize((ancho+3,alto))
-        finca_pil.save('../excels/recursos/FINCA_MODIFICADO.jpg')
+        finca_pil.save('../excels/archivos/FINCA_MODIFICADO.jpg')
     
-        logo = openpyxl.drawing.image.Image('../excels/recursos/LOGOVIDEOFINCA_MODIFICADO.png')
+        logo = openpyxl.drawing.image.Image('../excels/archivos/LOGOVIDEOFINCA_MODIFICADO.png')
         
         p2e = pixels_to_EMU
         c2e = cm_to_EMU
@@ -220,7 +244,7 @@ def poner_imagenes(sheet):
         sheet.add_image(logo)
         
 
-        finca = openpyxl.drawing.image.Image('../excels/recursos/FINCA_MODIFICADO.jpg')
+        finca = openpyxl.drawing.image.Image('../excels/archivos/FINCA_MODIFICADO.jpg')
         p2e = pixels_to_EMU
         c2e = cm_to_EMU
         h, w = finca.height, finca.width
@@ -263,6 +287,17 @@ def decodificar_base64(codificado,nombre_archivo,extension):
     with open(f'C:/Users/DELL/Desktop/{nombre_archivo}_decodificado.{extension}', 'wb') as file_to_save:
         decoded_image_data = base64.decodebytes(base64_img_bytes)
         file_to_save.write(decoded_image_data)
+
+def borrar_temporal():
+    #eliminando la carpeta temp
+    ruta = str(pathlib.Path().absolute())
+    a=ruta.replace('\\','/')
+    x = a.rfind("/")
+    ruta_temp = a[0:x+1]+"excels/temp"
+    shutil.rmtree(ruta_temp)
+    #creandola de vuelta
+    path = pathlib.Path(ruta_temp)
+    path.mkdir(parents=True)
 
 #PRUEBAS        
 def prueba():

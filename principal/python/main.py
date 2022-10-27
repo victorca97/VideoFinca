@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, Response
+from flask import Flask, jsonify, request, Response,send_file
 from flask_pymongo import PyMongo
 from bson import json_util
 from bson.objectid import ObjectId
@@ -7,7 +7,7 @@ from consolidado import generar_doc_finca
 import json
 app = Flask(__name__)
 #app.secret_key = 'myawesomesecretkey'
-app.config['MONGO_URI'] = 'mongodb://localhost/videofincaDB'
+app.config['MONGO_URI'] = 'mongodb+srv://Paino:sistemasMONGO@cluster0.awnp8gy.mongodb.net/videosession?retryWrites=true&w=majority'
 mongo = PyMongo(app)
 CORS(app)
 cors=CORS(app,resource={
@@ -16,44 +16,59 @@ cors=CORS(app,resource={
     }
 })
 
+#FILE_CONTAINER = 'C:/Users/DELL/Desktop/flask_videofinca/excels/pruebas/'
+FILE_CONTAINER = '../excels/temp/'
+
+#para enviar parametros a un get, ponerlo en el link
 @app.route("/berrios", methods=["GET"])
 def obtener_berrios():
     propiedades = json_util.loads(json_util.dumps(mongo.db.propiedades.find()))[0]
-    print("PROPIEDADES  ",propiedades)
-    for propiedad in propiedades:
-            plantilla2=[
-            { 
-            "$match": {
-                "_id": 'Finca0001' 
-            }
-            },  
-            {
-            "$lookup": {
-                "from": 'plantilla',
-                "localField": '_id',
-                "foreignField": 'Finca',
-                "as": 'Plantillas'
-            }
-            },  
-            {
-            "$lookup": {
-                "from": 'propietarios',
-                "localField": '_id',
-                "foreignField": 'Finca',
-                "as": 'Propietarios'
-            }
-            }
-            ]
-            # print("PLANTILLA",   plantilla2)
-
-            resultados2 =mongo.db.propiedades.aggregate(plantilla2)
-            # print("RESULTADOS ", resultados2)
-            response=json_util.dumps(resultados2)
-            # print("RESPONSE ", response)
-            tipo = 'xlsx'
-            buffer = generar_doc_finca(tipo,json.loads(response))
+    #print('DATOS DEL JSON>>>>>>>>>>>>>>>',len(propiedades))
+    condicion = 0
+    #se metio el while dado que leia que la long de propiedades era 4
+    #esto hacia q se repita el proceso 4 veces, dando fallo en la parte de pdfs
+    while condicion == 0:
+    #for propiedad in propiedades:
+        plantilla2=[
+        { 
+        "$match": {
+            "_id": 'Finca0001' 
+        }
+        },  
+        {
+        "$lookup": {
+            "from": 'plantilla',
+            "localField": '_id',
+            "foreignField": 'Finca',
+            "as": 'Plantillas'
+        }
+        },  
+        {
+        "$lookup": {
+            "from": 'propietarios',
+            "localField": '_id',
+            "foreignField": 'Finca',
+            "as": 'Propietarios'
+        }
+        }
+        ]
+        resultados2 =mongo.db.propiedades.aggregate(plantilla2)
+        # print("RESULTADOS ", resultados2)
+        response=json_util.dumps(resultados2)
+        # print("RESPONSE ", response)
+        tipo = 'pdf'
+        leerlo = json.loads(response)
+        print('COMO SE LEE EL JSON >>>>>>>>>>>',leerlo)
+        buffer = generar_doc_finca(tipo,json.loads(response))
+        condicion = 1 #para q finalize
             
     return Response(json_util.dumps(buffer),mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
+
+@app.route('/berrios/<filename>')
+def return_files_tut(filename):
+    file_path = FILE_CONTAINER + filename
+    return send_file(file_path, as_attachment=True)
+    #return send_file(file_path, as_attachment=True, attachment_filename='')
 
 @app.route("/propiedades", methods=["GET"])
 def obtener_propiedades():

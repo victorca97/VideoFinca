@@ -1,5 +1,6 @@
 from re_mongoDB import*
-from re_excel import convertir_pdf
+from re_excel import convertir_pdf,borrar_temporal
+
 """if __name__ == "__main__":
     while True:
         json = urls()
@@ -10,19 +11,18 @@ from re_excel import convertir_pdf
 def generar_doc_finca(tipo,json): #devuelve una matriz con los sgtes datos
     # estado: si se genero correctamente el excel
     # propietario: nombre del propietario
-    # excel: excel codificado del propietario
-    # pdf : pdf codificado del propietario
-    # print("JSONNNNNNNNNNNNNNNNN",json)
-    path = '../excels/pruebas'#ruta donde se guardaran los excels y pdfs
+    #path = '../excels/pruebas'#ruta donde se guardaran los excels y pdfs
     #json = get_informacion()#jala el JSON con toda la informacion
-    varbuffer,cantidad_propietarios = generar_excel(json) #devuelve la lista con estado,propietario,excel codificado
+    borrar_temporal()#borra los archivos de la carpeta temporal, dodne estaran los excels y pdfs
+    #esto para no llenar la carpeta y q solo se genere cuando lo desee el usuario/cliente
+    varbuffer,cantidad_propietarios,lista_json_excel = generar_excel(json) #devuelve la lista con estado,propietario,excel codificado
     if (tipo == 'xlsx'):
         #convertir_pdf(path,tipo)#genera los pdfs
-        return varbuffer
+        return lista_json_excel
     elif (tipo == 'pdf'):
-        varbuffer_con_pdfs = convertir_pdf(varbuffer,cantidad_propietarios,path)
+        lista_json_pdf = convertir_pdf(varbuffer,cantidad_propietarios)
         #retornar el status
-        return varbuffer_con_pdfs
+        return lista_json_pdf
     else:
         print('tipo de extension incorrecto (poner xlsx o pdf)')
 
@@ -30,9 +30,3 @@ def generar_doc_finca(tipo,json): #devuelve una matriz con los sgtes datos
 #tipo = 'pdf' #'xlsx' o 'pdf'       
 #matriz = generar_doc_finca(tipo)
 #print(matriz)
-"""
-    {
-        nombre: "nombre",
-        tipo: "tipo" (xlsx o pdf)
-    }
-"""
