@@ -143,23 +143,20 @@ def convertir_pdf(varbuffer,cantidad_propietarios):
 
     # version q funcionaba
     json_rutas_pdf = []
-    print('CANTIDAD PROPIETARIOS >>>>>>>>>>>',cantidad_propietarios)
+    #print('CANTIDAD PROPIETARIOS >>>>>>>>>>>',cantidad_propietarios)
     for i in range(cantidad_propietarios):
         if (varbuffer[i][0]!=1):
             ruta = str(pathlib.Path().absolute())
             a=ruta.replace('\\','/')
             x = a.rfind("/")
             nombre_propietario = varbuffer[i][1]
-            ruta_xls = a[0:x+1]+"excels/temp/propietario_"+nombre_propietario+".xlsx"
-            #nombre_archivo = f'propietario_{varbuffer[i][1]}'
-            #ruta_excel = path+'/'+nombre_archivo+'.xlsx'
-            # print(ruta)
+            ruta_base = get_url_api()
+            new_ruta = ruta_base+'/recibos/propietario_'+nombre_propietario+'.pdf'
+            ruta_xls =a[0:x+1] +"/excels/temp/propietario_"+nombre_propietario+".xlsx"
             pdf_path = convertir_a_pdf(ruta_xls)
-            print('CREO EL  PDF N~>>>>>>>>>',i)
-            #varbuffer[i][3]= pdf_codificado
             nombres_completos = varbuffer[i][1]
             estado = varbuffer[i][0]
-            diccionario_info = {"cliente":nombres_completos,"estado":estado,"ruta_pdf":pdf_path}
+            diccionario_info = {"cliente":nombres_completos,"estado":estado,"ruta_pdf":new_ruta}
             json_rutas_pdf.append(diccionario_info)
     return json_rutas_pdf
 
@@ -298,6 +295,10 @@ def borrar_temporal():
     #creandola de vuelta
     path = pathlib.Path(ruta_temp)
     path.mkdir(parents=True)
+
+def get_url_api():
+    url = 'http://192.168.195.8:4000'
+    return url
 
 #PRUEBAS        
 def prueba():

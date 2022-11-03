@@ -7,7 +7,6 @@ def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de 
     prop=json[0]['Propietarios']#para leer el json
     
     cantidad_propietarios = len(prop)
-    print('CANTIDAD PROPIETARIOS >>>>>>>>>>>>>>>>>',cantidad_propietarios)
     #Estado 0 -> CREADO CON EXITO , 1 -> FALLO
     #           Estado / Cliente / Codificado excel 
     #Cliente 1
