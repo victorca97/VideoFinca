@@ -9,7 +9,7 @@ from PIL import Image
 import pathlib
 import pythoncom
 import shutil
-import time
+import os
 def combinar_celdas(sheet,celda_inicial,celda_final,texto=''):
     sheet.merge_cells(f'{celda_inicial}:{celda_final}')
     if texto!='':
@@ -115,7 +115,7 @@ def ancho_col(sheet):
         sheet.column_dimensions[col_letter].width = medida #NO ESTA EN PIXELES
         anchos=anchos+1
 
-def convertir_pdf(varbuffer,cantidad_propietarios): 
+def convertir_pdf(varbuffer,cantidad_propietarios,finca,año,mes): 
     #version original
     """list_dir = [] 
     list_dir = os.listdir(path)
@@ -151,8 +151,8 @@ def convertir_pdf(varbuffer,cantidad_propietarios):
             x = a.rfind("/")
             nombre_propietario = varbuffer[i][1]
             ruta_base = get_url_api()
-            new_ruta = ruta_base+'/recibos/propietario_'+nombre_propietario+'.pdf'
-            ruta_xls =a[0:x+1] +"/excels/temp/propietario_"+nombre_propietario+".xlsx"
+            new_ruta = ruta_base+'/recibos/'+mes+'_propietario_'+nombre_propietario+'.pdf'
+            ruta_xls =a[0:x+1] +"fincas/"+finca+"/"+nombre_propietario+'/'+año+'/'+mes+'_propietario_'+nombre_propietario+".xlsx"
             pdf_path = convertir_a_pdf(ruta_xls)
             nombres_completos = varbuffer[i][1]
             estado = varbuffer[i][0]
@@ -290,7 +290,7 @@ def borrar_temporal():
     ruta = str(pathlib.Path().absolute())
     a=ruta.replace('\\','/')
     x = a.rfind("/")
-    ruta_temp = a[0:x+1]+"excels/temp"
+    ruta_temp = a[0:x+1]+"fincas"
     shutil.rmtree(ruta_temp)
     #creandola de vuelta
     path = pathlib.Path(ruta_temp)
@@ -299,6 +299,23 @@ def borrar_temporal():
 def get_url_api():
     url = 'http://192.168.195.8:4000'
     return url
+
+# fincas
+# --nombrepropietario
+#   -- año
+#       -- recibo_mes_nombrepropietario
+
+def guardar_ruta_excel(nombre_excel,finca,propietario,año,mes):
+    ruta_archivos = 'fincas/'+finca+'/'+propietario+'/'+año #falta /mes_propietario.xlsx
+    ruta = str(pathlib.Path().absolute())
+    a=ruta.replace('\\','/')
+    x = a.rfind("/")
+    print('ruta matriz',a[0:x+1]) #C:/Users/DELL/Desktop/flask_videofinca/
+    ruta_carpetas = pathlib.Path(a[0:x+1]+ruta_archivos)
+    ruta_carpetas.mkdir(parents=True)
+    ruta_excel_real = a[0:x+1]+ruta_archivos+'/'+mes+'_'+nombre_excel
+    print(ruta_excel_real)
+    return ruta_excel_real
 
 #PRUEBAS        
 def prueba():

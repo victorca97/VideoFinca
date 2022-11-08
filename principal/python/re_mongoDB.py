@@ -3,9 +3,8 @@ from re_excel import *
 from openpyxl.styles import *
 
 #esta version lee por propietarios
-def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
+def generar_excel(json,finca,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
     prop=json[0]['Propietarios']#para leer el json
-    
     cantidad_propietarios = len(prop)
     #Estado 0 -> CREADO CON EXITO , 1 -> FALLO
     #           Estado / Cliente / Codificado excel 
@@ -16,7 +15,6 @@ def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de 
     #    .  
     #    .  
     #Cliente n   
-
     #CREANDO LA TABLA
     #toda esta parte es fija en la tabla
     #----------------------------------------------------------------
@@ -66,7 +64,9 @@ def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de 
             sheet['B5']=id_departamento
             sheet['B5'].alignment=Alignment(horizontal='center')
 
-            sheet['B7']='SETIEMBRE 2022'
+            mes = 'SETIEMBRE'
+            año = '2022'
+            sheet['B7']=mes+' '+año
             sheet['B7'].alignment=Alignment(horizontal='center')
             
             estacionamientos = prop[0]['Estacionamientos']
@@ -291,17 +291,19 @@ def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de 
             #nombre_excel = f'propietario_{id}_{n_excel}'
             nombre_excel = f'propietario_{nombres_completos}.xlsx'
             #nombre del excel
-            #guardando el libro
+            #guardando el librocs
             
-            ruta = str(pathlib.Path().absolute())
+            """ruta = str(pathlib.Path().absolute())
             a=ruta.replace('\\','/')
             x = a.rfind("/")
-            
-            ruta_excel_real = a[0:x+1]+"excels/temp/"+nombre_excel
-            print(ruta_excel_real)
+            print('ruta matriz',a[0:x+1]) #C:/Users/DELL/Desktop/flask_videofinca/
+            ruta_excel_real = a[0:x+1]+"excels/temp/propietario_"+nombre_excel
+            print(ruta_excel_real)"""
+
+            ruta_excel_real = guardar_ruta_excel(nombre_excel,finca,nombres_completos,año,mes)
+            print('ruta excel real → ',ruta_excel_real)
             book.save(ruta_excel_real)
             #aumentando el numero del excel a guardar
-            print('N EXCEL >>>>>>>>>>>>>>>>>>>',n_excel)
             n_excel=n_excel+1
             
             #si se ve esto en pantalla, se genero el excel con exito
@@ -309,9 +311,6 @@ def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de 
             
             #cerrar el libro
             book.close()  
-
-            #retornar el buffer
-            #excel_codificado = convertir_base64(excel_guardar)#codifica el archivo excel
             
             #guardando datos en la lista general
             lista_general[i][0] = estado #estado
@@ -326,4 +325,4 @@ def generar_excel(json,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de 
             diccionario_info = {"cliente":nombres_completos,"estado":estado,"ruta_excel":'Error al procesar el documento: '+e}
             json_rutas_excel.append(diccionario_info)
     print('LEYO TODOS LOS PROPIETARIOS')
-    return lista_general,cantidad_propietarios,json_rutas_excel
+    return lista_general,cantidad_propietarios,json_rutas_excel,año,mes

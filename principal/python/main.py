@@ -6,6 +6,7 @@ from flask_cors import CORS
 from consolidado import generar_doc_finca
 from re_excel import borrar_temporal
 import json
+from datetime import datetime
 app = Flask(__name__)
 #app.secret_key = 'myawesomesecretkey'
 app.config['MONGO_URI'] = 'mongodb+srv://Paino:sistemasMONGO@cluster0.awnp8gy.mongodb.net/videosession?retryWrites=true&w=majority'
@@ -18,12 +19,11 @@ cors=CORS(app,resource={
 })
 
 #FILE_CONTAINER = 'C:/Users/DELL/Desktop/flask_videofinca/excels/pruebas/'
-FILE_CONTAINER = '../excels/temp/'
+FILE_CONTAINER = '../excels/Finca0001/Edu_Be/2022/'
 
 #ORIGINAL
 @app.route("/recibosOriginal", methods=["GET"])
 def recibos_generarOriginal():
-
     #propiedades = json_util.loads(json_util.dumps(mongo.db.propiedades.find()))[0]
     fincas = json_util.loads(json_util.dumps(mongo.db.propiedades.find({},{"_id"}))) #es una lista
     print('FINCAS>>>>',fincas)
@@ -36,7 +36,6 @@ def recibos_generarOriginal():
     borrar_temporal()
     #print('DATOS DEL JSON>>>>>>>>>>>>>>>',len(propiedades))
     condicion = 0
-    #se metio el while dado que leia que la long de propiedades era 4
     #esto hacia q se repita el proceso 4 veces, dando fallo en la parte de pdfs
     while condicion == 0:
     #print('CANTIDAD DE PROPIETARIO>>>>>>>>',len(propiedades))
@@ -88,58 +87,63 @@ def recibos_generarOriginal():
 #para enviar parametros a un get, ponerlo en el link
 @app.route("/recibos", methods=["POST"])
 def recibos_generar():
-    finca= request.json["_id"]
-    #lista_propiedades = json_util.loads(json_util.dumps(mongo.db.propiedades.find()))[0]
-    #fincas = json_util.loads(json_util.dumps(mongo.db.propiedades.find({},{"_id"}))) #es una lista
-    #print('FINCAS>>>>',fincas)
-    #len_finca= len(fincas)
-    #lista_finca=[]
+    now = datetime.now()
+    print('Fecha actual',now)
+    try:
+        finca= request.json["_id"]
+        borrar_temporal()
+        query_finca=[
+        { 
+        "$match": {
+            "_id": f'{finca}' 
+        }
+        },  
+        {
+        "$lookup": {
+            "from": 'plantilla',
+            "localField": '_id',
+            "foreignField": 'Finca',
+            "as": 'Plantillas'
+        }
+        },  
+        {
+        "$lookup": {
+            "from": 'propietarios',
+            "localField": '_id',
+            "foreignField": 'Finca',
+            "as": 'Propietarios'
+        }
+        }
+        ]
+        resultados =mongo.db.propiedades.aggregate(query_finca)
+        
+        #print("RESULTADOS ", resultados)
+        response=json_util.dumps(resultados)
+        #print('RESPONSE >>>>>>',response)
+        # print("RESPONSE ", response)
+        tipo = 'pdf' #xlsx o pdf
+        datos = json.loads(response)
+        lista = datos[0]['Propietarios']
+        cantidad_propietarios = len(lista)
+        print(cantidad_propietarios)
+        if cantidad_propietarios>0:
+            print('Leyendo la '+finca)
+            #print('COMO SE LEE EL JSON >>>>>>>>>>>',leerlo)
+            lista_recibos,url = generar_doc_finca(tipo,datos,finca)
+            #return Response(json_util.dumps(lista),mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
+            return Response(json_util.dumps(lista_recibos),mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
+        else:
+            response = {
+                "status": 400,
+                "mensaje":"No hay propietarios en la finca"}
+        return response
 
-    borrar_temporal()
-    #print('DATOS DEL JSON>>>>>>>>>>>>>>>',len(propiedades))
-    #condicion = 0
-    #se metio el while dado que leia que la long de propiedades era 4
-    #esto hacia q se repita el proceso 4 veces, dando fallo en la parte de pdfs
-    #while condicion == 0:
-    #print('CANTIDAD DE PROPIETARIO>>>>>>>>',len(propiedades))
-    query_finca=[
-    { 
-    "$match": {
-        "_id": f'{finca}' 
-    }
-    },  
-    {
-    "$lookup": {
-        "from": 'plantilla',
-        "localField": '_id',
-        "foreignField": 'Finca',
-        "as": 'Plantillas'
-    }
-    },  
-    {
-    "$lookup": {
-        "from": 'propietarios',
-        "localField": '_id',
-        "foreignField": 'Finca',
-        "as": 'Propietarios'
-    }
-    }
-    ]
-    resultados =mongo.db.propiedades.aggregate(query_finca)
-    # print("RESULTADOS ", resultados2)
-    response=json_util.dumps(resultados)
-    # print("RESPONSE ", response)
-    tipo = 'pdf' #xlsx o pdf
-    datos = json.loads(response)
-    print('Leyendo la '+finca)
-    #print('COMO SE LEE EL JSON >>>>>>>>>>>',leerlo)
-    lista_recibos,url = generar_doc_finca(tipo,datos)
-
-    print('URL → ',url)   
-    #datos_mostrar=[lista_datos_leidos,url]
-    #print('DATOS MOSTRAR>>>>>>',datos_mostrar)
-    #return Response(json_util.dumps(lista),mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
-    return Response(json_util.dumps(lista_recibos),mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
+    except Exception as e:
+        response = {
+                "status": 500,
+                "code": e.code,
+                "mensaje":"Hubo error al registrar"}
+        return response
 #response = requests.request("POST", url, headers=headers, data=user)
 
 @app.route('/recibos/<filename>')#para poder descargar los archivos poniendo /{nombre_archivo}.{extension}
@@ -156,6 +160,8 @@ def obtener_propiedades():
 
 @app.route("/propiedades", methods=["POST"])
 def crear_propiedad():
+    now = datetime.now()
+    print('Fecha actual',now)
     try:
         _id = request.json["_id"]
         Admin_Id = request.json["Admin_Id"]
@@ -164,12 +170,13 @@ def crear_propiedad():
         if Admin_Id or Direccion or Nombre:
         #if Direccion or Nombre:
             id = mongo.db.propiedades.insert_one(
-                { "_id":_id,"Admin_Id":Admin_Id, "Direccion":Direccion, "Nombre":Nombre})
+                { "_id":_id,"Admin_Id":Admin_Id, "Direccion":Direccion, "Nombre":Nombre, "Fecha_creacion":now})
             response = {
                 "_id":      str(id),
                 "Admin_Id":Admin_Id,
                 "Direccion":Direccion,
                 "Nombre":Nombre
+
             }
             return response,{"Access-Control-Allow-Origin": "*"}
         else:
@@ -228,6 +235,7 @@ def crear_plantilla():
             return not_found()
     except Exception as e:
         print('ENTRO A AEXCEPCION')
+        print(e)
         response = {
                 "status": 400,
                 "code": e.code,
@@ -277,25 +285,27 @@ def obtener_propietarios():
 def crear_porpietarios():
     try:
         print('ENTRO AL TRY')
+        print('REQUEST',request.json)
         _id = request.json["_id"]
+        
         Finca = request.json["Finca"]
         Nombres_y_Apellidos = request.json["Nombres_y_Apellidos"]
         Tipo_Documento = request.json["Tipo_Documento"]
         Nro_Documento = request.json["Nro_Documento"]
         Correo = request.json["Correo"]
         Telefono = request.json["Telefono"]
-        Departamentos = request.json["Departamentos"]
-        print(type(Departamentos))
-        array_departamentos = [
+        array_departamentos = request.json["Departamentos"]
+        
+        """array_departamentos = [
             {
                 "ID_Departamentos": 703,
                 "Porcentaje_Participacion": 2.4
             }
-        ]
-
+        ]"""
+    
         Estacionamientos = request.json["Estacionamientos"]
         #Participacion = request.json["Participacion"]
-        if _id or Finca or Nombres_y_Apellidos or Tipo_Documento or Nro_Documento or Correo or Telefono or Departamentos or Estacionamientos :
+        if _id or Finca or Nombres_y_Apellidos or Tipo_Documento or Nro_Documento or Correo or Telefono or array_departamentos or Estacionamientos :
             id = mongo.db.propietarios.insert_one(
                 { "_id":_id,"Finca":Finca, "Nombres_y_Apellidos": Nombres_y_Apellidos, "Tipo_Documento": Tipo_Documento, "Nro_Documento": Nro_Documento, "Correo": Correo, "Telefono": Telefono, "Departamentos": array_departamentos, "Estacionamientos": Estacionamientos})
             response = {
@@ -309,14 +319,14 @@ def crear_porpietarios():
                 "Nro_Documento":        Nro_Documento,
                 "Correo":               Correo,
                 "Telefono":             Telefono,
-                "Departamentos":         Departamentos,
+                "Departamentos":         array_departamentos,
                 "Estacionamientos":      Estacionamientos
                 #"Participacion":         Participacion
             }
             #Response.status('201')
             print('SATISDACTORIO')
             print('id>>>>>>',id)
-            response.status_code = 201
+            #response.status_code = 201
             return response
         else:
             print('ENTRO AL ELSE')
@@ -325,6 +335,7 @@ def crear_porpietarios():
             return response
     except Exception as e:
         print('ENTRO A AEXCEPCION')
+        print(e)
         response = {
                 "status": 400,
                 "code": e.code,
