@@ -8,7 +8,7 @@ def ruta_listar_admins():
     response =listar_admins()
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
-@app.route("/admins", methods=["DELETE"])
+@app.route("/admins", methods=["DELETE"]) 
 def ruta_eliminar_admins():
     response = eliminar_admins()
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
@@ -21,7 +21,7 @@ def ruta_eliminar_admins_ID(id):
 @app.route("/admins/<id>", methods=["PUT"])
 def ruta_actualizar_admins_ID(id):
     response = actualizar_admins_ID(id)
-    
+
 def not_found(error=None):
     message = {
         'message': 'Resource Not Found ' + request.url,
