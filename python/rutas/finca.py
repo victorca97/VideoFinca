@@ -1,35 +1,37 @@
 from __main__ import app
 from flask import jsonify, request, Response
 from re_excel import *
+from bson import json_util
 from controller.c_finca import *
 
-@app.route("/finca", methods=["GET"])#F1
+@app.route("/finca", methods=["GET"])#F1 FUNCIONA EN POSTMAN
 def ruta_listar_finca():
     response =listar_finca()
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
-@app.route("/finca", methods=["DELETE"])#F2
+"""@app.route("/finca", methods=["DELETE"])#F2 a eliminar
 def ruta_eliminar_finca():
     response = eliminar_finca()
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
-
-@app.route("/finca/<id>", methods=["DELETE"])#F3
+"""
+@app.route("/finca/<id>", methods=["DELETE"])#F3 NO ES NECESARIO POR EL MOMENTO
 def ruta_eliminar_finca_ID(id):
     response = eliminar_finca_ID(id)
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
-@app.route("/finca/<id>", methods=["GET"])#F4
+@app.route("/finca/<id>", methods=["GET"])#F4 NO ES NECESARIO
 def ruta_listar_finca_ID(id):
     response = listar_finca_ID(id)
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
-@app.route("/finca", methods=["POST"])#???
+@app.route("/finca", methods=["POST"])#YA FUNCIONA EN EL POSTMAN
 def ruta_crear_finca():
     response = crear_finca()
+    response = json_util.dumps(response)
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
 @app.route("/finca/<id>", methods=["PUT"])#P6
-def ruta_actualizar_finca_ID(id):
+def ruta_actualizar_finca_ID(id):#funciona
     response = actualizar_finca_ID(id)
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 

@@ -3,8 +3,7 @@ from flask import jsonify, request, Response
 from re_excel import *
 from controller.c_recibos import *
 
-
-@app.route("/recibos", methods=["POST"])
+@app.route("/recibos", methods=["POST"])#"/recibos"
 def ruta_generar_recibos():#R1
     response = generar_recibos()
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
@@ -19,9 +18,9 @@ def ruta_listar_recibos_ID(id):
     response = listar_recibos_ID(id)
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
-@app.route("/recibos", methods=["PUT"])#RNUEVO3
-def ruta_actualizar_recibos():
-    response = actualizar_recibos()
+@app.route("/recibos/<id>", methods=["PUT"])#RNUEVO3
+def ruta_actualizar_recibos(id):
+    response = actualizar_recibos(id)
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
     
 @app.route("/recibos", methods=["DELETE"])#RNUEVO4
@@ -29,7 +28,7 @@ def ruta_eliminar_recibos():
     response = eliminar_recibos()
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
-@app.route("/recibos", methods=["DELETE"])#RNUEVO5
+@app.route("/recibos/<id>", methods=["DELETE"])#RNUEVO5
 def ruta_eliminar_recibos_ID(id):
     response = eliminar_recibos_ID(id)
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
@@ -38,7 +37,6 @@ def ruta_eliminar_recibos_ID(id):
 def ruta_listar_secciones():
     response = listar_secciones()
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
-
 
 def not_found(error=None):
     message = {
