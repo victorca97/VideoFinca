@@ -23,14 +23,16 @@ def generar_recibos():#R1
             return Response(json_util.dumps(lista_recibos),mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
         else:
             response = {"status": 400,"mensaje":"No hay propietarios en la finca"}
-        return response
+        return json_util.dumps(response)
     except Exception as e:
-        response = {"status": 500,"code": e.code,"mensaje":"Hubo error al registrar"}
+        response = {"status": 500,"mensaje":"Hubo error al registrar"}
         return response
 
 def listar_recibos():#RNUEVO1
     plantilla = conexion('finca').find()
     response = json_util.dumps(plantilla)
+
+    #response = jsonify({'message':' se elimino satisfactoriamente'}) tiene que devovler un mensaje
     return response
 
 def listar_recibos_ID(id):#RNUEVO2
@@ -38,25 +40,28 @@ def listar_recibos_ID(id):#RNUEVO2
     response = json_util.dumps(plantilla)
     return response
 
-def actualizar_recibos():#R2
-    id= request.json["_id"]
-    Finca = request.json["Finca"]
-    Seccion = request.json["Seccion"]
-    if Finca or Seccion:
-        response = {"$set":{
-            "_id": str(id),
-            "Finca":Finca,
-            "Seccion":Seccion,
+def actualizar_recibos(id):#R2
+    try:
+        #id= request.json["_id"]
+        Finca = request.json["Finca"]
+        Seccion = request.json["Seccion"]
+        if Finca or Seccion:
+            response = {"$set":{"_id": id,"Finca":Finca,"Seccion":Seccion,}
             }
-        }
-        filter={
-            "_id": str(id), 
-        }
-        id = conexion('recibos').update_one(filter, response)
-        return response
-        #return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
-    else:
-        return not_found()
+            filter={
+                "_id": id, 
+            }
+            id = conexion('recibos').update_one(filter, response)
+            return response
+            #return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
+        else:
+            return not_found()
+    except Exception as e:
+        print(e)
+        response = {
+                "status": 500,
+                "mensaje":"Hubo error al actualizar → "+str(e)}
+        return json_util.dumps(response)
 
 def eliminar_recibos():#R3
     conexion('recibos').drop()
@@ -66,7 +71,7 @@ def eliminar_recibos():#R3
 def eliminar_recibos_ID(id):#RNUEVO3
     conexion('finca').delete_one({'_id': id})
     response = jsonify({'message': 'El usuario' + id + ' se elimino satisfactoriamente'})
-    return response
+    return json_util.dumps(response)
 
 def listar_secciones():
     plantilla = conexion('plantilla').find()

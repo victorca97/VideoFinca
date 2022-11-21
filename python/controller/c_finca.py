@@ -3,21 +3,29 @@ from re_excel import *
 from bson import json_util
 from bson.objectid import ObjectId
 from libs.database import conexion
-#FALTA ACTUALIZAR FINCA
+
+#LISTAR
 def listar_finca():#F1
-    finca = conexion('finca').find()
-    response = json_util.dumps(finca)
-    return response
+    try:
+        finca = conexion('finca').find()
+        response = json_util.dumps(finca)
+        return response
+    except Exception as e:
+        print(e)
+        response =  json_util.dumps({"status":500, 'message':'Sucedio un error al conseguir datos de la finca → '+e})
+        return response
 
-def eliminar_finca():#F2
-    conexion('finca').drop()
-    response = jsonify({"status": 201,'message':' se elimino satisfactoriamente'})
-    return response
+#ELIMINAR
+def eliminar_finca_ID(id):#F3 
+    try:
+        conexion('finca').delete_one({'_id': id})
+        response = json_util.dumps({"status": 201,'message': 'El usuario ' + id + ' se elimino satisfactoriamente'})
+        return response
+    except Exception as e:
+        print(e)
+        response =  json_util.dumps({"status":500, 'message':'Sucedio un error al tratar de eliminar la finca → '+str(e)})
+        return response
 
-def eliminar_finca_ID(id):#F3
-    conexion('finca').delete_one({'_id': id})
-    response = jsonify({"status": 201,'message': 'El usuario ' + id + ' se elimino satisfactoriamente'})
-    return response
 
 def listar_finca_ID(id):#F4
     plantilla = conexion('finca').find({'Finca': id, })
@@ -27,14 +35,14 @@ def listar_finca_ID(id):#F4
 def crear_finca():
     try:
         Admin_Id = request.json["Admin_Id"]
-        Direccion = request.json["direccion"]
+        Direccion = request.json["Direccion"]
         Nombre = request.json["Nombre"]
         if Admin_Id or Direccion or Nombre:
+            modificacion = ''
             _id = generar_id()
             now = agregar_fecha()
             db = conexion('finca')
-            respuesta = db.insert_one({ "_id":_id,"Admin_Id":Admin_Id, 
-            "Direccion":Direccion, "Nombre":Nombre, "Fecha_creacion":now})
+            db.insert_one({ "_id":_id,"Admin_Id":Admin_Id,"Direccion":Direccion, "Nombre":Nombre, "Fecha_creacion":now,"Fecha_modificacion":modificacion})
             #print('RESPUESTA',respuesta)
             response = {
                 "status": 201,
@@ -51,24 +59,32 @@ def crear_finca():
     except Exception as e:
         response = {
                 "status": 500,
-                "code": e.code,
-                "mensaje":"Hubo error al registrar"}
-        return response
+                "mensaje":"Hubo error al registrar → "+str(e)}
+        return  json_util.dumps(response)
 
 def actualizar_finca_ID(id):
-    Admin_Id = request.json["Admin_Id"]
-    Direccion = request.json["direccion"]
-    Nombre = request.json["Nombre"]
-    if Admin_Id or Direccion or Nombre:
-        conexion('finca').update_one(
-            {'_id': ObjectId(id['$oid']) if '$oid' in id else ObjectId(id)}, {'$set': {  
-                "_id": id,
-                "Admin_Id":Admin_Id,
-                "Direccion":Direccion,
-                "Nombre":Nombre}}
-        )
-    response = jsonify({"status": 201,'message': 'El usuario ' + id + ' ha sido actualizado satisfactoriamente'})
-    return response
+    try:
+        Admin_Id = request.json["Admin_Id"]
+        Direccion = request.json["Direccion"]
+        Nombre = request.json["Nombre"]
+        if Admin_Id or Direccion or Nombre:
+            fecha_modificacion = agregar_fecha()
+            conexion('finca').update_one(
+                #{'_id': ObjectId(id['$oid']) if '$oid' in id else ObjectId(id)}, {'$set': {  
+                {'_id': id}, {'$set': {  
+                    #"_id": id,
+                    "Admin_Id":Admin_Id,
+                    "Direccion":Direccion,
+                    "Nombre":Nombre,
+                    "Fecha de modificacion": fecha_modificacion}}
+            )
+        response = json_util.dumps({"status": 201,'message': 'La Finca ' + Nombre + ' ha sido actualizado satisfactoriamente'})
+        return response
+    except Exception as e:
+        response = {
+                "status": 500,
+                "mensaje":"Hubo error al actualizar → " + e}
+        return json_util.dumps(response)
 
 def not_found(mensaje):
     message = {
