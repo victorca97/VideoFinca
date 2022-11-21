@@ -6,18 +6,6 @@ from openpyxl.styles import *
 def generar_excel(json,finca,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
     prop=json[0]['Propietarios']#para leer el json
     cantidad_propietarios = len(prop)
-    #Estado 0 -> CREADO CON EXITO , 1 -> FALLO
-    #           Estado / Cliente / Codificado excel 
-    #Cliente 1
-    #CLiente 2
-    #Cliente 3
-    #    .  
-    #    .  
-    #    .  
-    #Cliente n   
-    #CREANDO LA TABLA
-    #toda esta parte es fija en la tabla
-    #----------------------------------------------------------------
     w,h = 4,cantidad_propietarios
     lista_general = [[0 for x in range(w)] for y in range(h)]#creando la matriz general
     json_rutas_excel = []
@@ -34,7 +22,6 @@ def generar_excel(json,finca,tipo_moneda='S/.',mensaje_extra='Mensaje extra al p
             ancho_columnas_parametros(sheet)
             combinar_celdas(sheet,'B1','D1','JUNTA DE PROPIETARIOS')
             sheet['B1'].alignment=Alignment(horizontal="center")
-
             combinar_celdas(sheet,'B2','D2','EDIFICIO GALLITO DE LAS ROCAS')
             sheet['B2'].alignment=Alignment(horizontal="center")
             
@@ -288,17 +275,8 @@ def generar_excel(json,finca,tipo_moneda='S/.',mensaje_extra='Mensaje extra al p
                                             bottom=Side(border_style=None, color='000000'))
 
             nombres_completos = nombres_completos.replace(' ','_')#habia un problema si dejaba los nombres con espacio
-            #nombre_excel = f'propietario_{id}_{n_excel}'
+        
             nombre_excel = f'propietario_{nombres_completos}.xlsx'
-            #nombre del excel
-            #guardando el librocs
-            
-            """ruta = str(pathlib.Path().absolute())
-            a=ruta.replace('\\','/')
-            x = a.rfind("/")
-            print('ruta matriz',a[0:x+1]) #C:/Users/DELL/Desktop/flask_videofinca/
-            ruta_excel_real = a[0:x+1]+"excels/temp/propietario_"+nombre_excel
-            print(ruta_excel_real)"""
 
             ruta_excel_real = guardar_ruta_excel(nombre_excel,finca,nombres_completos,año,mes)
             print('ruta excel real → ',ruta_excel_real)
