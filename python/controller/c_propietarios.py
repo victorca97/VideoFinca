@@ -43,19 +43,43 @@ def registrar_propietario():#P2
         Estacionamientos = request.json["Estacionamientos"]
         Numero_Estacionamiento = request.json["Estacionamientos"][0]['Numero_Estacionamiento']#validar que no se repita
         estado = 'A'#activo por defecto
-        validacion = False
-        if ID_Departamentos != "":#no se lleno departamento
-            validacion = validar_id_departamento(ID_Departamentos,Finca)
-            if validacion ==False:
+
+        validacion_departamento = False
+        validacion_estacionamiento = False
+        
+        if ID_Departamentos != "" and Numero_Estacionamiento!="":#puso tanto departamento como estacionamiento
+            #con esta condicional ya se asegura que ninguno de esos campos estan vacios
+            validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
+            validacion_estacionamiento = validar_id_estacionamiento(Numero_Estacionamiento,Finca,"A")
+            validacion_general = True
+            if validacion_departamento ==False or validacion_estacionamiento ==False:
                 duplicado_ID_Departamentos = ID_Departamentos
-        elif Numero_Estacionamiento!="":#no se lleno estacionamiento
-            validacion = validar_id_estacionamiento(Numero_Estacionamiento,Finca)
-            if validacion ==False:
                 duplicado_Numero_Estacionamiento = Numero_Estacionamiento
+                validacion_general = False
+            print('VALIDACION DEPARTAMENTO ',validacion_departamento)
+            print('VALIDACION ESTACIONAMIENTO ',validacion_estacionamiento)
+
+        elif ID_Departamentos!="":#solo puso departamento
+            validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
+            print('VALIDACION DEPARTAMENTO ',validacion_departamento)
+            if validacion_departamento ==False:
+                duplicado_ID_Departamentos = ID_Departamentos
+            validacion_general = validacion_departamento
+
+        elif Numero_Estacionamiento!="":#solo puso estacionamiento
+            validacion_estacionamiento = validar_id_estacionamiento(Numero_Estacionamiento,Finca)
+            print('VALIDACION ESTACIONAMIENTO ',validacion_estacionamiento)
+            if validacion_estacionamiento ==False:
+                duplicado_Numero_Estacionamiento = Numero_Estacionamiento
+            validacion_general = validacion_estacionamiento
+            validacion_departamento = True
+
         else:#mensaje en caso los campos Departamentos y Estacionamientos esten vacios
-            response = {"status": 400,'message': 'Los campos de Departamento y Estacionamiento no pueden estar ambos vacios'}  
+            validacion_general = False
+            response = {"status": 400,'mensaje': 'Los campos de Departamento y Estacionamiento no pueden estar ambos vacios'}  
             return response
-        if validacion:
+
+        if validacion_general:
             if _id or Finca or Nombres_y_Apellidos or Tipo_Documento or Nro_Documento or Correo or Telefono or array_departamentos or Estacionamientos :
                 fecha=agregar_fecha()
                 modificacion = ''
@@ -67,30 +91,17 @@ def registrar_propietario():#P2
                 response = {
                     "status": 201,
                     "mensaje": "El usuario "+ Nombres_y_Apellidos+ " se registro satisfactoriamente"
-                    #"_id":                  _id,
-                    #"Finca":                Finca,
-                    #"Nombres_y_Apellidos":  Nombres_y_Apellidos,
-                    #"Tipo_Documento":       Tipo_Documento,
-                    #"Nro_Documento":        Nro_Documento,
-                    #"Correo":               Correo,
-                    #"Telefono":             Telefono,
-                    #"Departamentos":         [{
-                    #    'ID_Departamentos': ID_Departamentos, 'Porcentaje_Participacion': Porcentaje_Participacion}],
-                    #"Estacionamientos":      [{
-                    #    'Numero_Estacionamiento': Numero_Estacionamiento}],
-                    #"Fecha_creacion":       fecha,
-                    #"Fecha_modificacion": modificacion
                 }
                 return response
             else:
-                response = {"status": 400,'message': 'Uno o mas datos a registrar son incorrectos'}  
+                response = {"status": 400,'mensaje': 'Uno o mas datos a registrar son incorrectos'}  
                 return response
         else:
-            if duplicado_ID_Departamentos!= "":
-                response = {"status": 400,'message': "El departamento "+duplicado_ID_Departamentos+" ya esta siendo usado"}            
+            if  validacion_departamento!=True:
+                response = {"status": 400,'mensaje': "El departamento "+duplicado_ID_Departamentos+" ya esta siendo usado"}            
                 return response
             else:
-                response = {"status": 400,'message': "El estacionamiento "+duplicado_Numero_Estacionamiento+" ya esta siendo usado"}            
+                response = {"status": 400,'mensaje': "El estacionamiento "+duplicado_Numero_Estacionamiento+" ya esta siendo usado"}            
                 return response
 
     except Exception as e:
@@ -98,23 +109,6 @@ def registrar_propietario():#P2
         response = {
                 "status": 500,
                 "mensaje":"Hubo error al registrar → "+str(e)}
-        return json_util.dumps(response)
-
-#ELIMINAR
-def eliminar_propietario_ID():#P5
-    try:
-        _id = request.json["_id"]
-        Nombres_y_Apellidos = request.json["Nombres_y_Apellidos"]
-        conexion('propietarios').update_one(
-                {'_id': _id}, 
-                {'$set': {"estado":'N'}})
-        response = {"status": 201,'message': 'El propietario '+Nombres_y_Apellidos+' ha sido eliminado satisfactoriamente'}
-        return response
-    except Exception as e:    
-        print(e)
-        response = {
-                "status": 500,
-                "mensaje":"Hubo error al actualizar los datos → "+str(e)}
         return response
 
 #ACTUALIZAR
@@ -122,6 +116,7 @@ def actualizar_propietario_ID():#P6
     duplicado_ID_Departamentos = ""
     duplicado_Numero_Estacionamiento = ""
     _id = request.json["_id"]
+    #validacion = False
     try:
         #_id = request.json["_id"]
         Finca = request.json["Finca"]
@@ -143,35 +138,60 @@ def actualizar_propietario_ID():#P6
             if validacion ==False:
                 duplicado_Numero_Estacionamiento = Numero_Estacionamiento
         else:#mensaje en caso los campos Departamentos y Estacionamientos esten vacios
-            response = {"status": 400,'message': 'Los campos de Departamento y Estacionamiento no pueden estar ambos vacios'}  
-            return response
-
-        if _id or Finca or Nombres_y_Apellidos or Tipo_Documento or Nro_Documento or Correo or Telefono or array_departamentos or Estacionamientos:
-            modificacion = agregar_fecha()
-            conexion('propietarios').update_one(
-                {'_id': _id}, {'$set': {
-                                        "_id": _id,
-                                        "Finca": Finca,
-                                        "Nombres_y_Apellidos": Nombres_y_Apellidos,
-                                        "Tipo_Documento": Tipo_Documento,
-                                        "Nro_Documento": Nro_Documento,
-                                        "Correo": Correo,
-                                        "Telefono":Telefono,
-                                        "Departamentos":array_departamentos,
-                                        "Estacionamientos":Estacionamientos,
-                                        "Fecha_modificacion": modificacion}})
-            response = json_util.dumps({"status": 201,'message': 'El propietario ' + Nombres_y_Apellidos + ' ha sido actualizado satisfactoriamente'})
-            return response
-        else:
-            print(Response.status_code)
-            response ={
-                "status": 400,
-                "mensaje":"Uno o mas datos a actualizar son incorrectos"}
+            response = {"status": 400,'mensaje': 'Los campos de Departamento y Estacionamiento no pueden estar ambos vacios'}  
             return json_util.dumps(response)
+        print('VALIDACION ≥>>>> ',validacion)
+        if validacion:
+            if _id or Finca or Nombres_y_Apellidos or Tipo_Documento or Nro_Documento or Correo or Telefono or array_departamentos or Estacionamientos:
+                modificacion = agregar_fecha()
+                conexion('propietarios').update_one(
+                    {'_id': _id}, {'$set': {
+                                            "_id": _id,
+                                            "Finca": Finca,
+                                            "Nombres_y_Apellidos": Nombres_y_Apellidos,
+                                            "Tipo_Documento": Tipo_Documento,
+                                            "Nro_Documento": Nro_Documento,
+                                            "Correo": Correo,
+                                            "Telefono":Telefono,
+                                            "Departamentos":array_departamentos,
+                                            "Estacionamientos":Estacionamientos,
+                                            "Fecha_modificacion": modificacion}})
+                response = {"status": 201,'mensaje': 'El propietario ' + Nombres_y_Apellidos + ' ha sido actualizado satisfactoriamente'}
+                return json_util.dumps(response)
+            else:
+                response ={
+                    "status": 400,
+                    "mensaje":"Uno o mas datos a actualizar son incorrectos"}
+                return json_util.dumps(response)
+                 
+        else:
+            if duplicado_ID_Departamentos!= "":
+                response = {"status": 400,'mensaje': "El departamento "+duplicado_ID_Departamentos+" ya esta siendo usado"}            
+                return json_util.dumps(response)
+            else:
+                response = {"status": 400,'mensaje': "El estacionamiento "+duplicado_Numero_Estacionamiento+" ya esta siendo usado"}            
+                return json_util.dumps(response)
 
     except Exception as e:
         print(e)
         response = {
                 "status": 500,
                 "mensaje":"Hubo error al actualizar los datos → "+str(e)}
+        return json_util.dumps(response)
+
+#ELIMINAR
+def eliminar_propietario_ID():#P5
+    try:
+        _id = request.json["_id"]
+        Nombres_y_Apellidos = request.json["Nombres_y_Apellidos"]
+        conexion('propietarios').update_one(
+                {'_id': _id}, 
+                {'$set': {"estado":'N'}})
+        response = {"status": 201,'mensaje': 'El propietario '+Nombres_y_Apellidos+' ha sido eliminado satisfactoriamente'}
+        return json_util.dumps(response)
+    except Exception as e:    
+        print(e)
+        response = {
+                "status": 500,
+                "mensaje":"Hubo error al eliminar al propietario "+Nombres_y_Apellidos+"  → "+str(e)}
         return json_util.dumps(response)

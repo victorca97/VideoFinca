@@ -53,7 +53,7 @@ def crear_finca():
                 "Direccion":Direccion,
                 "Nombre":Nombre,
                 "Fecha_creacion": now,
-                "Mensaje" : 'Se registro satisfactoriamente la finca '+Nombre
+                "mensaje" : 'Se registro satisfactoriamente la finca '+Nombre
             }
             return response
         else:
