@@ -16,10 +16,12 @@ def listar_finca():#F1
         return response
 
 #ELIMINAR
-def eliminar_finca_ID(id):#F3 
+def eliminar_finca_ID():#F3 
     try:
+        id = request.json["_id"]
+        Nombre = request.json["Nombre"]
         conexion('finca').delete_one({'_id': id})
-        response = json_util.dumps({"status": 201,'message': 'El usuario ' + id + ' se elimino satisfactoriamente'})
+        response = json_util.dumps({"status": 201,'message': 'La finca ' + Nombre + ' se elimino satisfactoriamente'})
         return response
     except Exception as e:
         print(e)
@@ -62,8 +64,9 @@ def crear_finca():
                 "mensaje":"Hubo error al registrar → "+str(e)}
         return  json_util.dumps(response)
 
-def actualizar_finca_ID(id):
+def actualizar_finca_ID():
     try:
+        id = request.json["_id"]
         Admin_Id = request.json["Admin_Id"]
         Direccion = request.json["Direccion"]
         Nombre = request.json["Nombre"]
@@ -76,14 +79,14 @@ def actualizar_finca_ID(id):
                     "Admin_Id":Admin_Id,
                     "Direccion":Direccion,
                     "Nombre":Nombre,
-                    "Fecha de modificacion": fecha_modificacion}}
+                    "Fecha_modificacion": fecha_modificacion}}
             )
         response = json_util.dumps({"status": 201,'message': 'La Finca ' + Nombre + ' ha sido actualizado satisfactoriamente'})
         return response
     except Exception as e:
         response = {
                 "status": 500,
-                "mensaje":"Hubo error al actualizar → " + e}
+                "mensaje":"Hubo error al actualizar → " + str(e)}
         return json_util.dumps(response)
 
 def not_found(mensaje):

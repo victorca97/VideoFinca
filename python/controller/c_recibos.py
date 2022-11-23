@@ -10,7 +10,7 @@ def generar_recibos():#R1
         finca= request.json["_id"]
         borrar_temporal()
         query_finca=[{ "$match": {"_id": f'{finca}' }}, 
-        {"$lookup": {"from": 'recibos',"localField": '_id',"foreignField": 'Finca',"as": 'Recibos'}},  
+        {"$lookup": {"from": 'plantilla',"localField": '_id',"foreignField": 'Finca',"as": 'Plantillas'}},  
         {"$lookup": {"from": 'propietarios',"localField": '_id',"foreignField": 'Finca',"as": 'Propietarios'}}]
         resultados =conexion('finca').aggregate(query_finca)
         response=json_util.dumps(resultados)
@@ -22,10 +22,10 @@ def generar_recibos():#R1
             lista_recibos,url = generar_doc_finca(tipo,datos,finca)
             return Response(json_util.dumps(lista_recibos),mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
         else:
-            response = {"status": 400,"mensaje":"No hay propietarios en la finca"}
-        return json_util.dumps(response)
+            response = {"status": 400,"mensaje":"No hay propietarios en la finca "+finca}
+        return response
     except Exception as e:
-        response = {"status": 500,"mensaje":"Hubo error al registrar"}
+        response = {"status": 500,"mensaje":"Hubo error al registrar → "+str(e)}
         return response
 
 def listar_recibos():#RNUEVO1
@@ -61,7 +61,7 @@ def actualizar_recibos(id):#R2
         response = {
                 "status": 500,
                 "mensaje":"Hubo error al actualizar → "+str(e)}
-        return json_util.dumps(response)
+        return response
 
 def eliminar_recibos():#R3
     conexion('recibos').drop()
