@@ -3,7 +3,7 @@ from re_excel import *
 from openpyxl.styles import *
 
 #esta version lee por propietarios
-def generar_excel(json,finca,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
+def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
     prop=json[0]['Propietarios']#para leer el json
     cantidad_propietarios = len(prop)
     w,h = 4,cantidad_propietarios
@@ -298,6 +298,7 @@ def generar_excel(json,finca,tipo_moneda='S/.',mensaje_extra='Mensaje extra al p
             diccionario_info = {"cliente":nombres_completos,"estado":estado,"ruta_excel":ruta_excel_real}
             json_rutas_excel.append(diccionario_info)
         except Exception as e:
+            print('error → ',e)
             estado = 1 #fallo
             lista_general[i][0] = estado #estado
             lista_general[i][1] = propietario
@@ -305,3 +306,7 @@ def generar_excel(json,finca,tipo_moneda='S/.',mensaje_extra='Mensaje extra al p
             json_rutas_excel.append(diccionario_info)
     print('LEYO TODOS LOS PROPIETARIOS')
     return lista_general,cantidad_propietarios,json_rutas_excel,año,mes
+
+#para los que solo tienen estacionamientos
+def generar_excel_estacionamientos(json,finca,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
+    pass

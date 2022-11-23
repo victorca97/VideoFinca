@@ -12,6 +12,8 @@ import shutil
 from datetime import datetime
 import uuid 
 import base64
+from libs.database import conexion
+from bson import json_util
 def combinar_celdas(sheet,celda_inicial,celda_final,texto=''):
     sheet.merge_cells(f'{celda_inicial}:{celda_final}')
     if texto!='':
@@ -274,6 +276,34 @@ def agregar_fecha():
 def generar_id():
     id = str(uuid.uuid4())
     return id
+
+def validar_id_departamento(id,Finca,estado):
+    validacion = False
+    json = conexion('propietarios').find({"$and": [
+        {"Departamentos.ID_Departamentos": f'{id}'}, 
+        {"Finca": f'{Finca}'},
+        {"estado": f'{estado}'}]
+        })
+    response = json_util.dumps(json)#es un string
+    if len(response)>2:
+        return validacion
+    else:
+        validacion = True
+        return validacion
+
+def validar_id_estacionamiento(num_estacionamiento,Finca,estado):
+    validacion = False
+    json = conexion('propietarios').find({"$and": [
+        {"Estacionamientos.Numero_Estacionamiento": f'{num_estacionamiento}'}, 
+        {"Finca": f'{Finca}'},
+        {"estado": f'{estado}'}]
+        })
+    response = json_util.dumps(json)#es un string
+    if len(response)>2:
+        return validacion
+    else:
+        validacion = True
+        return validacion
 
 #PRUEBAS        
 def prueba():
