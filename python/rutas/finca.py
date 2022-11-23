@@ -14,9 +14,9 @@ def ruta_eliminar_finca():
     response = eliminar_finca()
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 """
-@app.route("/finca/<id>", methods=["DELETE"])#F3 NO ES NECESARIO POR EL MOMENTO
-def ruta_eliminar_finca_ID(id):
-    response = eliminar_finca_ID(id)
+@app.route("/finca", methods=["DELETE"])#F3 IMPLEMENTADO
+def ruta_eliminar_finca_ID():
+    response = eliminar_finca_ID()
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
 @app.route("/finca/<id>", methods=["GET"])#F4 NO ES NECESARIO
@@ -30,9 +30,9 @@ def ruta_crear_finca():
     response = json_util.dumps(response)
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
-@app.route("/finca/<id>", methods=["PUT"])#P6
-def ruta_actualizar_finca_ID(id):#funciona
-    response = actualizar_finca_ID(id)
+@app.route("/finca", methods=["PUT"])#P6
+def ruta_actualizar_finca_ID():#funciona
+    response = actualizar_finca_ID()
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
 def not_found(error=None):

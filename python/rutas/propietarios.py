@@ -22,19 +22,19 @@ def ruta_eliminar_propietario():
     response = eliminar_propietario()
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}"""
 
-@app.route("/propietario/<id>", methods=["GET"])#P4 falta
+@app.route("/propietario/<id>", methods=["GET"])#P4 NO ES NECESARIO
 def ruta_listar_propietario_ID(id):
     response = listar_propietario_ID(id)
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
-@app.route("/propietario", methods=["DELETE"])#P5 no se usa 
+@app.route("/propietario", methods=["DELETE"])#P5 IMPLEMENTADO
 def ruta_eliminar_propietario_ID():
     response = eliminar_propietario_ID()
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
-@app.route("/propietarios/<id>", methods=["PUT"])#P6 falta
-def ruta_actualizar_propietario_ID(id):
-    response = actualizar_propietario_ID(id)
+@app.route("/propietarios", methods=["PUT"])#P6 falta
+def ruta_actualizar_propietario_ID():
+    response = actualizar_propietario_ID()
     return Response(response , mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
 def not_found(error=None):
