@@ -14,6 +14,7 @@ import uuid
 import base64
 from libs.database import conexion
 from bson import json_util
+import json
 def combinar_celdas(sheet,celda_inicial,celda_final,texto=''):
     sheet.merge_cells(f'{celda_inicial}:{celda_final}')
     if texto!='':
@@ -277,34 +278,50 @@ def generar_id():
     id = str(uuid.uuid4())
     return id
 
-def validar_id_departamento(id,Finca,estado):
+def validar_id_departamento(departamento,Finca,estado):
     validacion = False
-    json = conexion('propietarios').find({"$and": [
-        {"Departamentos.ID_Departamentos": f'{id}'}, 
+    try:
+        respuesta = conexion('propietarios').find({"$and": [
+        {"Departamentos.ID_Departamentos": f'{departamento}'}, 
         {"Finca": f'{Finca}'},
-        {"estado": f'{estado}'}]
-        })
-    response = json_util.dumps(json)#es un string
-    if len(response)>2:
-        return validacion
-    else:
-        validacion = True
+        {"estado": f'{estado}'}
+        #{'_id' : {f'{id}':1}}
+        ]})
+        response = json_util.dumps(respuesta)#es un string []
+        consulta = json_util.loads(response)#diccionario
+        print('CONSULTA DEPARTAMENTO >>>>> ',consulta)
+        if len(consulta)>0:
+            return validacion
+        else:
+            validacion = True
+            return validacion
+    except Exception as e:
+        print('Error → ', str(e))
         return validacion
 
 def validar_id_estacionamiento(num_estacionamiento,Finca,estado):
     validacion = False
-    json = conexion('propietarios').find({"$and": [
-        {"Estacionamientos.Numero_Estacionamiento": f'{num_estacionamiento}'}, 
-        {"Finca": f'{Finca}'},
-        {"estado": f'{estado}'}]
-        })
-    response = json_util.dumps(json)#es un string
-    if len(response)>2:
+    try:
+        respuesta = conexion('propietarios').find({"$and": [
+            {"Estacionamientos.Numero_Estacionamiento": f'{num_estacionamiento}'}, 
+            {"Finca": f'{Finca}'},
+            {"estado": f'{estado}'}
+            #{'_id' : {f'{id}':1}}
+            #{u'_id':f'{id}'}]
+            #{'_id':{f'{id}':False}}]
+            ]})
+        response = json_util.dumps(respuesta)#es un string []
+        consulta = json_util.loads(response)#diccionario
+        print('CONSULTA ESTACIONAMIENTO >>>>> ',consulta)
+        if len(consulta)>0:
+            return validacion
+        else:
+            validacion = True
+            return validacion
+    except Exception as e:
+        print('Error → ', str(e))
         return validacion
-    else:
-        validacion = True
-        return validacion
-
+    
 #PRUEBAS        
 def prueba():
     #generar_id()
