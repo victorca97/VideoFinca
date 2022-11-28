@@ -13,14 +13,14 @@ def ruta_listar_recibos():
     response = listar_recibos()
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
-@app.route("/plantilla/<id>", methods=["GET"])#RNUEVO2
-def ruta_listar_recibos_ID(id):
-    response = listar_recibos_ID(id)
+@app.route("/recibo", methods=["POST"])#RNUEVO2
+def ruta_listar_recibos_ID():
+    response = listar_recibos_ID()
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
 
-@app.route("/recibos/<id>", methods=["PUT"])#RNUEVO3
-def ruta_actualizar_recibos(id):
-    response = actualizar_recibos(id)
+@app.route("/recibos", methods=["PUT"])#RNUEVO3
+def ruta_actualizar_recibos():
+    response = actualizar_recibos()
     return Response(response, mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
     
 @app.route("/recibos", methods=["DELETE"])#RNUEVO4
