@@ -77,9 +77,9 @@ def registrar_propietario():#P2
 
         if validacion_general:
             if _id or Finca or Nombres_y_Apellidos or Tipo_Documento or Nro_Documento or Correo or Telefono or array_departamentos or Estacionamientos :
-                fecha=agregar_fecha()
+                #fecha=agregar_fecha()
                 modificacion = ''
-                #fecha2 = datetime.now()
+                fecha = datetime.now()
                 db = conexion('propietarios')
                 db.insert_one(
                     { "_id":_id,"Finca":Finca, "Nombres_y_Apellidos": Nombres_y_Apellidos, "Tipo_Documento": Tipo_Documento,
@@ -114,7 +114,9 @@ def actualizar_propietario_ID():#P6
     duplicado_Numero_Estacionamiento = ""
     _id = request.json["_id"]
     #validacion = False
+    estado = "A"
     try:
+        
         #_id = request.json["_id"]
         Finca = request.json["Finca"]
         Nombres_y_Apellidos = request.json["Nombres_y_Apellidos"]
@@ -124,36 +126,92 @@ def actualizar_propietario_ID():#P6
         Telefono = request.json["Telefono"]
         array_departamentos = request.json["Departamentos"]
         Estacionamientos = request.json["Estacionamientos"]
+
         ID_Departamentos = request.json["Departamentos"][0]['ID_Departamentos']#validar que no se repita
         Numero_Estacionamiento = request.json["Estacionamientos"][0]['Numero_Estacionamiento']#validar que no se repita
         
-        validacion_departamento = False
+        #PARA EXTRAER DATOS ANTES DE HACER LOS CAMBIOS
+        respuesta = conexion('propietarios').find({"$and": [
+        {"_id": f'{_id}'},
+        {"Finca": f'{Finca}'},
+        {"estado": f'{estado}'}
+        ]})
+        response = json_util.dumps(respuesta)#es un string []
+        consulta = json_util.loads(response)#diccionario
+        valor_id_departamento_antes = consulta[0]['Departamentos'][0]['ID_Departamentos']
+        valor_estacionamiento_antes = consulta[0]['Estacionamientos'][0]['Numero_Estacionamiento']
+        #-------------------------------------------------
+
+        validacion_departamento = False  # FALSE ya existe y TRUE cuando no existe
         validacion_estacionamiento = False
+        repite_estacionamiento = False
+        repite_departamento = False
         
+
         if ID_Departamentos != "" or Numero_Estacionamiento!="":#puso tanto departamento como estacionamiento
-            #con esta condicional ya se asegura que ninguno de esos campos estan vacios
-            validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
+            if ID_Departamentos== valor_id_departamento_antes and Numero_Estacionamiento== valor_estacionamiento_antes:
+                #en caso no se haga ninguna modificacion
+                response = {"status": 201,'mensaje': 'El propietario ' + Nombres_y_Apellidos + ' ha sido actualizado satisfactoriamente'}
+                validacion_general= False
+                return json_util.dumps(response)
+            elif (ID_Departamentos!= valor_id_departamento_antes and Numero_Estacionamiento== valor_estacionamiento_antes):
+                #solo cambia dpto
+                validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
+                if validacion_departamento:
+                    validacion_general=True
+                else:
+                    validacion_general=False
+                    repite_departamento = True
+                    duplicado_ID_Departamentos = ID_Departamentos
+
+            elif (ID_Departamentos== valor_id_departamento_antes and Numero_Estacionamiento!= valor_estacionamiento_antes):
+                #no cambia de departamento, solo de estacionamiento
+                validacion_estacionamiento = validar_id_estacionamiento(Numero_Estacionamiento,Finca,"A")
+                if validacion_estacionamiento:
+                    validacion_general= True
+                else:
+                    validacion_general=False
+                    repite_estacionamiento = True
+                    duplicado_Numero_Estacionamiento = Numero_Estacionamiento
+            else:#cambia los dos campos
+                validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
+                validacion_estacionamiento = validar_id_estacionamiento(Numero_Estacionamiento,Finca,"A")
+                if validacion_departamento and validacion_estacionamiento:
+                    validacion_general= True
+                else:
+                    validacion_general = False
+
+                #para ver cual de los datos esta repetido
+                
+            """validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
             validacion_estacionamiento = validar_id_estacionamiento(Numero_Estacionamiento,Finca,"A")
+            print("/\/\/\/\/\/\ VALIDACION DEPARTAMENTO:  ",validacion_departamento)
+            print("/\/\/\/\/\/\ VALIDACION ESTACIONAMIENTO :  ",validacion_estacionamiento)
             validacion_general = True
             if validacion_departamento ==False and validacion_estacionamiento ==False:
-                duplicado_ID_Departamentos = ID_Departamentos
+                print('AND')#cuando trato de hacer el cambio mencionado
+                print("/\/\/\/\/\/\ entro a cambiar LA VALIDACION GENERAL")
+                duplicado_ID_Departamentos = ID_Departamentos #
                 duplicado_Numero_Estacionamiento = Numero_Estacionamiento
                 validacion_general = False
-
+            """
         elif ID_Departamentos!="":#solo puso departamento
+            print('DEPARTAMENTO')
             validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
             validacion_estacionamiento = validar_id_estacionamiento(Numero_Estacionamiento,Finca,"A")
             if validacion_departamento ==False or validacion_estacionamiento ==False:
-                duplicado_ID_Departamentos = ID_Departamentos
+                print('OR')
+                repite_departamento = True
             validacion_general = validacion_departamento
 
         elif Numero_Estacionamiento!="":#solo puso estacionamiento
+            print('ESTACIONAMIENTO')
             validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
             validacion_estacionamiento = validar_id_estacionamiento(Numero_Estacionamiento,Finca,"A")
             if validacion_estacionamiento ==False or validacion_departamento ==False:
-                duplicado_Numero_Estacionamiento = Numero_Estacionamiento
+                print('OR')
+                repite_estacionamiento = True
             validacion_general = validacion_estacionamiento
-            validacion_departamento = True
 
         else:#mensaje en caso los campos Departamentos y Estacionamientos esten vacios
             validacion_general = False
@@ -182,14 +240,34 @@ def actualizar_propietario_ID():#P6
                     "status": 400,
                     "mensaje":"Uno o mas datos a actualizar son incorrectos"}
                 return json_util.dumps(response)
-                 
         else:
+            if repite_departamento:
+                response = {"status": 201,'mensaje': 'El departamento ' + duplicado_ID_Departamentos +' ya esta siendo usado'}
+                return json_util.dumps(response)
+            elif repite_estacionamiento:
+                response = {"status": 201,'mensaje': 'El estacionamiento ' + duplicado_Numero_Estacionamiento +' ya esta siendo usado'}
+                return json_util.dumps(response)
+            
+        """else:
             if  validacion_departamento!=True:
-                response = {"status": 400,'mensaje': "El departamento "+duplicado_ID_Departamentos+" ya esta siendo usado"}            
-                return json_util.dumps(response)
+                if validacion_estacionamiento!=True:
+                    response = {"status": 400,'mensaje': "El estacionamiento "+duplicado_Numero_Estacionamiento+" ya esta siendo usado"}            
+                    return json_util.dumps(response) 
+                else:
+                    response = {"status": 400,'mensaje': "El departamento "+duplicado_ID_Departamentos+" ya esta siendo usado"}            
+                    return json_util.dumps(response)
             else:
-                response = {"status": 400,'mensaje': "El estacionamiento "+duplicado_Numero_Estacionamiento+" ya esta siendo usado"}            
-                return json_util.dumps(response)
+                if validacion_departamento!=True:
+                    response = {"status": 400,'mensaje': "El departamento "+duplicado_ID_Departamentos+" ya esta siendo usado"}            
+                    return json_util.dumps(response) 
+                else:
+                    response = {"status": 400,'mensaje': "El estacionamiento "+duplicado_Numero_Estacionamiento+" ya esta siendo usado"}            
+                    return json_util.dumps(response)"""
+            #else:
+                #response = {"status": 400,'mensaje': "El estacionamiento "+duplicado_Numero_Estacionamiento+" ya esta siendo usado"}            
+                #return json_util.dumps(response)
+            #else:
+                #print('exploto ')
 
     except Exception as e:
         print(e)
