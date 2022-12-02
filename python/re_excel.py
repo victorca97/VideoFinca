@@ -129,8 +129,8 @@ def convertir_pdf(varbuffer,cantidad_propietarios,finca,año,mes):
             x = a.rfind("/")
             nombre_propietario = varbuffer[i][1]
             ruta_base = get_url_api()
-            new_ruta = ruta_base+'/recibos/'+mes+'_propietario_'+nombre_propietario+'.pdf'
-            ruta_xls =a[0:x+1] +"fincas/"+finca+"/"+nombre_propietario+'/'+año+'/'+mes+'_propietario_'+nombre_propietario+".xlsx"
+            new_ruta = ruta_base+'/recibos/'+str(mes)+'_propietario_'+nombre_propietario+'.pdf'
+            ruta_xls =a[0:x+1] +"fincas/"+finca+"/"+nombre_propietario+'/'+str(año)+'/'+str(mes)+'_propietario_'+nombre_propietario+".xlsx"
             pdf_path = convertir_a_pdf(ruta_xls)
             nombres_completos = varbuffer[i][1]
             estado = varbuffer[i][0]
@@ -258,14 +258,15 @@ def get_url_api():
 #       -- recibo_mes_nombrepropietario
 
 def guardar_ruta_excel(nombre_excel,finca,propietario,año,mes):
-    ruta_archivos = 'fincas/'+finca+'/'+propietario+'/'+año #falta /mes_propietario.xlsx
+    ruta_archivos = 'fincas/'+finca+'/'+propietario+'/'+str(año) #falta /mes_propietario.xlsx
+    print('RUTA ARCHIVOS')
     ruta = str(pathlib.Path().absolute())
     a=ruta.replace('\\','/')
     x = a.rfind("/")
     print('ruta matriz',a[0:x+1]) #C:/Users/DELL/Desktop/flask_videofinca/
     ruta_carpetas = pathlib.Path(a[0:x+1]+ruta_archivos)
     ruta_carpetas.mkdir(parents=True)
-    ruta_excel_real = a[0:x+1]+ruta_archivos+'/'+mes+'_'+nombre_excel
+    ruta_excel_real = a[0:x+1]+ruta_archivos+'/'+str(mes)+'_'+nombre_excel
     print(ruta_excel_real)
     return ruta_excel_real
 
@@ -282,14 +283,12 @@ def validar_id_departamento(departamento,Finca,estado):
     validacion = False
     try:
         respuesta = conexion('propietarios').find({"$and": [
-        {"Departamentos.ID_Departamentos": f'{departamento}'}, 
+        {"Departamentos.ID_Departamentos": f'{departamento}'},
         {"Finca": f'{Finca}'},
         {"estado": f'{estado}'}
-        #{'_id' : {f'{id}':1}}
         ]})
         response = json_util.dumps(respuesta)#es un string []
         consulta = json_util.loads(response)#diccionario
-        print('CONSULTA DEPARTAMENTO >>>>> ',consulta)
         if len(consulta)>0:
             return validacion
         else:
@@ -306,13 +305,9 @@ def validar_id_estacionamiento(num_estacionamiento,Finca,estado):
             {"Estacionamientos.Numero_Estacionamiento": f'{num_estacionamiento}'}, 
             {"Finca": f'{Finca}'},
             {"estado": f'{estado}'}
-            #{'_id' : {f'{id}':1}}
-            #{u'_id':f'{id}'}]
-            #{'_id':{f'{id}':False}}]
             ]})
         response = json_util.dumps(respuesta)#es un string []
         consulta = json_util.loads(response)#diccionario
-        print('CONSULTA ESTACIONAMIENTO >>>>> ',consulta)
         if len(consulta)>0:
             return validacion
         else:

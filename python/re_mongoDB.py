@@ -3,31 +3,52 @@ from re_excel import *
 from openpyxl.styles import *
 
 #esta version lee por propietarios
-def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
-    prop=json[0]['Propietarios']#para leer el json
-    cantidad_propietarios = len(prop)
+def generar_excel_propietarios(datos_dpto_estacionamiento,datos_subsecciones,datos_finca,finca,cantidad_propietarios,fecha_emision,fecha_vencimiento,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
+    #para leer el json
+    print('ENTRO A GENERAR EXCEL PROPIETARIO')
+    #DATOS DE LA FINCA
+    info_finca = datos_finca[0]
+    direccion = info_finca["Direccion"]
+    Nombre = info_finca["Nombre"]
+
+    #DATOS SUBSECCION
+    info_subseccion = datos_subsecciones[0]
+    mes = info_subseccion["Mes"]
+    año = info_subseccion["Year"]
+
     w,h = 4,cantidad_propietarios
     lista_general = [[0 for x in range(w)] for y in range(h)]#creando la matriz general
     json_rutas_excel = []
     for i in range(cantidad_propietarios):
+        dato_dpto_estc = datos_dpto_estacionamiento[i]
+        propietario=dato_dpto_estc["Nombres_y_Apellidos"]
+        #print('PROPIETARIO ',propietario)
+        id_departamento = dato_dpto_estc["Departamentos"][0]["ID_Departamentos"]
+        #print('ID DEPARTAMENTO ',id_departamento)
+        porc_participacion = dato_dpto_estc["Departamentos"][0]["Porcentaje_Participacion"]
+        #print('PORC PARTICIPACION',porc_participacion)
+        num_estacionamiento = dato_dpto_estc["Estacionamientos"][0]["Numero_Estacionamiento"]
+        #print('NUM ESTACIONAMIENTO ',num_estacionamiento)
+
         estado = 0
-        propietario = prop[i]['Nombres_y_Apellidos']
+        #propietario = prop[i]['Nombres_y_Apellidos']
+
         try:
             #CREANDO EL EXCEL
             total_monto=0
             book=Workbook()
             sheet= book.active
-
+            print('ENTRO A GENERAR EL EXCEL')
             #[17,18,14,10,17] original
             ancho_columnas_parametros(sheet)
             combinar_celdas(sheet,'B1','D1','JUNTA DE PROPIETARIOS')
             sheet['B1'].alignment=Alignment(horizontal="center")
-            combinar_celdas(sheet,'B2','D2','EDIFICIO GALLITO DE LAS ROCAS')
+            combinar_celdas(sheet,'B2','D2',Nombre)
             sheet['B2'].alignment=Alignment(horizontal="center")
-            
+            print('FUNCIONA EL alignment')
             #DIRECCION
-            id = prop[i]['_id']
-            direccion=json[0]['Direccion']
+            #id = prop[i]['_id']
+            #direccion=json[0]['Direccion']
 
             combinar_celdas(sheet,'B3','D3',direccion)
             sheet['B3'].alignment=Alignment(horizontal="center")
@@ -44,32 +65,34 @@ def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensa
 
             #DEPARTAMENTO y PORC. PARTICIPACION
             #departamento
-            departamentos = prop[i]['Departamentos']
-            id_departamento = departamentos[0]['ID_Departamentos']
-            porcentaje_participacion = departamentos[0]['Porcentaje_Participacion']
+            #departamentos = prop[i]['Departamentos']
+            #id_departamento = departamentos[0]['ID_Departamentos']
+            #porcentaje_participacion = departamentos[0]['Porcentaje_Participacion']
             
             sheet['B5']=id_departamento
             sheet['B5'].alignment=Alignment(horizontal='center')
-
-            mes = 'SETIEMBRE'
-            año = '2022'
-            sheet['B7']=mes+' '+año
+            
+            #mes = 'SETIEMBRE'
+            #año = '2022'
+            periodo = str(mes)+' '+str(año)
+            sheet['B7']=periodo
+            #print('PERIODO '+periodo)
             sheet['B7'].alignment=Alignment(horizontal='center')
             
-            estacionamientos = prop[0]['Estacionamientos']
+            #estacionamientos = prop[0]['Estacionamientos']
 
             #por cada estacionamiento
-            for j in range(len(estacionamientos)):
-                num_estacionamiento = estacionamientos[j]['Numero_Estacionamiento']
+            #for j in range(len(estacionamientos)):
+                #num_estacionamiento = estacionamientos[j]['Numero_Estacionamiento']
             
             sheet['C5']='Estacionamiento:'
             sheet.merge_cells('B6:E6')
 
             #Datos del propietario
 
-            nombres_completos = prop[i]['Nombres_y_Apellidos'] #nombre del propietario
+            #nombres_completos = prop[i]['Nombres_y_Apellidos'] #nombre del propietario
 
-            sheet['B6']=nombres_completos
+            sheet['B6']=propietario
             sheet['B6'].alignment=Alignment(horizontal='center')
             sheet['C7']='Total Porc. Part.'
 
@@ -78,7 +101,7 @@ def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensa
             sheet['D5'].alignment=Alignment(horizontal='center')
 
             sheet.merge_cells('D7:E7')
-            sheet['D7']=porcentaje_participacion
+            sheet['D7']=porc_participacion
             sheet['D7'].alignment=Alignment(horizontal='center')
 
             sheet['D8']='Total'
@@ -92,31 +115,85 @@ def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensa
             #RECORRIENDO LOS DATOS DE CADA FINCA
             iterable=9
             #en esta seccion se llenan los datos de la BD
-            #----------------------------------------------------------------
-            plantillas=json[0]['Plantillas']
-            #print(plantillas)
-            for j in range(len(plantillas)):
+            #------------------SUBSECCIONES----------------------------------------------
+            #plantillas=json[0]['Plantillas']
+            secciones = info_subseccion["Seccion"]
+            #print('CANT SECCIONES >>> ',str(len(secciones)))
+
+            for j in range(len(secciones)):
                 
-                secciones = plantillas[j]['Seccion']
-
-                for s in range(len(secciones)):
+                subseccion = secciones[j]['Subsecciones']
+                nombre_seccion = secciones[j]['nombre']
+                #print('CANT SUBSECCIONES >>> ',str(len(subseccion)))
+                
+                for s in range(len(subseccion)):
                     #secciones
-                    id_seccion = secciones[s]['ID_Seccion']
-
-                    nombre = secciones[s]['nombre']
-                    
-                    nombre_seccion= nombre
+                    #id_seccion = secciones[s]['ID_Seccion']
+                    #print('NOMBRE DE LA SECCION >>> ',str(nombre_seccion))
+                    #nombre = secciones[s]['nombre']
                     celda_seccion=f'A{iterable}'
                     sheet[celda_seccion]=nombre_seccion
                     
                     formato_celdas(sheet,celda_seccion,'Calibri',11,True,True,'000000',True)
                     iterable=iterable+1
 
-                    subsecciones = secciones[s]['Subsecciones']
-                    
+                    nombre_subseccion = subseccion[s]['nombre']
+                    print('NOMBRE SUBSECCION >>>> ',nombre_subseccion)
+                    monto_subseccion = subseccion[s]['monto']
+                    print('MONTO SUBSECCION >>>> ',monto_subseccion)
+                    descripcion_subseccion = subseccion[s]['descripcion']
+                    print('DESCRIPCION SUBSECCION >>>> ',descripcion_subseccion)
                     #subsecciones
+                    celda_col1=f'A{iterable}'
+                    valor_col1=nombre_subseccion
+                    sheet[celda_col1] = valor_col1
 
-                    for ss in range(len(subsecciones)):
+                    #descripcion
+                    celda_col2=f'B{iterable}'
+                    celda_col2_fin = f'C{iterable}'
+                    valor_col2=descripcion_subseccion
+                    sheet[celda_col2] = valor_col2
+                    combinar_celdas(sheet,celda_col2,celda_col2_fin)
+                    sheet[celda_col2].alignment=Alignment(horizontal='center')
+
+                    #monto
+                    celda_col4=f'D{iterable}'
+           
+                    monto_float = "{:.2f}".format(monto_subseccion)
+                 
+                    if (tipo_moneda!='€'):
+                        valor_col4=tipo_moneda +' '+str(monto_float)
+    
+                    else:
+                        valor_col4=str(monto_float)+' '+tipo_moneda 
+       
+                    sheet[celda_col4] = valor_col4
+                    sheet[celda_col4].alignment=Alignment(horizontal='center')
+
+                    celda_col5=f'E{iterable}'        
+                    
+                    porc_participacion_float = float(porc_participacion)
+                    
+                    total_monto_fila=monto_subseccion*(porc_participacion_float/100)#ACA FALLA POR ALGUN MOTIVO ....
+                    print('TOTAL MONTO FILA >>> ',str(total_monto_fila))
+
+                    monto_fila = monto_subseccion + total_monto_fila
+
+                    total_monto=total_monto+monto_fila
+                    total_monto_fila_float="{:.2f}".format(total_monto_fila)
+                    print('TOTAL MONTO FILA >>> ',str(total_monto_fila_float))
+                    if (tipo_moneda!='€'):
+                        valor_col5=tipo_moneda +' '+str(total_monto_fila_float)
+                    else:
+                        valor_col5=str(total_monto_fila_float)+' '+tipo_moneda
+
+                    sheet[celda_col5] = valor_col5
+                    sheet[celda_col5].alignment=Alignment(horizontal='center')
+
+                    celda_final_suma=celda_col5
+                    
+                    iterable = iterable + 1
+                    """for ss in range(len(subseccion)):
                         id_subseccion = subsecciones[ss]["ID_Subseccion"]
                         #nombre
                         nombre = subsecciones[ss]['nombre']
@@ -147,7 +224,7 @@ def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensa
 
                         celda_col5=f'E{iterable}'        
 
-                        total_monto_fila=monto*(porcentaje_participacion/100)
+                        total_monto_fila=monto*(porc_participacion/100)
 
                         monto_fila = monto + total_monto_fila
 
@@ -162,14 +239,16 @@ def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensa
                         sheet[celda_col5].alignment=Alignment(horizontal='center')
 
                         celda_final_suma=celda_col5
-                        iterable = iterable + 1
+                        iterable = iterable + 1"""
             
             #La suma total
             total_monto_float="{:.2f}".format(total_monto)
+            print('TOTAL MONTO FINAL >>> '+str(total_monto_float))
             if (tipo_moneda!='€'):
                 celda_suma_expresion=tipo_moneda +' '+str(total_monto_float)
             else:
                 celda_suma_expresion=str(total_monto_float)+' '+tipo_moneda
+            print('celda_suma_expresion :>>> ',celda_suma_expresion)
             celda_total=f'A{iterable}'
             celda_total_valor=f'E{iterable}'
             sheet[celda_total] = 'TOTAL'
@@ -188,8 +267,8 @@ def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensa
             sheet[celda_fecha_emision]='Fecha de emision' #inicial
             
             celda_fecha_emision=f'A{iterable+1}'
-            valor_fecha_emision='01/09/2022'
-            sheet[celda_fecha_emision]=valor_fecha_emision
+            #valor_fecha_emision='01/09/2022'
+            sheet[celda_fecha_emision]=fecha_emision
             sheet[celda_fecha_emision].alignment=Alignment(horizontal='center')
 
             #fecha vencimiento
@@ -197,8 +276,8 @@ def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensa
             sheet[celda_fecha_vencimento]='Fecha de vencimiento'
 
             celda_fecha_vencimento=f'B{iterable+1}'
-            valor_fecha_vencimento='07/07/2022'
-            sheet[celda_fecha_vencimento]=valor_fecha_vencimento
+            #valor_fecha_vencimento='07/07/2022'
+            sheet[celda_fecha_vencimento]=fecha_vencimiento
             sheet[celda_fecha_vencimento].alignment=Alignment(horizontal='center')
 
             #N° de cuenta
@@ -252,7 +331,7 @@ def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensa
             #ultimas celdas
             celda_titular_ini = f'C{ultima_fila+1}'
             celda_titular_fin = f'E{ultima_fila+1}'
-            titular=nombres_completos
+            titular=propietario
             texto_titular = 'BCP - Titular: '+titular
             combinar_celdas(sheet,celda_titular_ini,celda_titular_fin,texto_titular)
             sheet[celda_titular_ini].alignment=Alignment(horizontal='center')
@@ -266,7 +345,7 @@ def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensa
             combinar_celdas(sheet,celdaini_mensaje,celdafin_mensaje,mensaje_extra)
             sheet.cell(ultima_fila+2,1).alignment = Alignment(horizontal='center',vertical='center')
             poner_imagenes(sheet)
-
+            print('Puso las imagenes')
             sheet.cell(1,5).alignment = Alignment(horizontal='center',vertical='center')
 
             sheet.cell(8,1).border = Border(left=Side(border_style='thin', color='000000'),
@@ -274,12 +353,17 @@ def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensa
                                             top=Side(border_style=None, color='000000'),
                                             bottom=Side(border_style=None, color='000000'))
 
-            nombres_completos = nombres_completos.replace(' ','_')#habia un problema si dejaba los nombres con espacio
-        
+            print('Propietario >>> ',propietario)
+            nombres_completos = propietario.replace(' ','_')#habia un problema si dejaba los nombres con espacio
+            print('Nombres completos >>> ',nombres_completos)
             nombre_excel = f'propietario_{nombres_completos}.xlsx'
-
+            print('NOMBRE EXCEL >>> ',nombre_excel)
+            print('FINCA >>> ',finca)
+            print('YEAR >>> ', año)
+            print('MES >>> ',mes)
             ruta_excel_real = guardar_ruta_excel(nombre_excel,finca,nombres_completos,año,mes)
-            print('ruta excel real → ',ruta_excel_real)
+            print('RUTA EXCEL REAL >>> ',ruta_excel_real)
+            print('ruta excel real → ',str(ruta_excel_real))
             book.save(ruta_excel_real)
             agregar_fecha()
             #aumentando el numero del excel a guardar
@@ -298,14 +382,14 @@ def generar_excel_propietarios(json,finca,tipo_moneda='S/.',mensaje_extra='Mensa
             diccionario_info = {"cliente":nombres_completos,"estado":estado,"ruta_excel":ruta_excel_real}
             json_rutas_excel.append(diccionario_info)
         except Exception as e:
-            print('error → ',e)
+            print('error → ', str(e))
             estado = 1 #fallo
             lista_general[i][0] = estado #estado
             lista_general[i][1] = propietario
             diccionario_info = {"cliente":nombres_completos,"estado":estado,"ruta_excel":'Error al procesar el documento: '+e}
             json_rutas_excel.append(diccionario_info)
     print('LEYO TODOS LOS PROPIETARIOS')
-    return lista_general,cantidad_propietarios,json_rutas_excel,año,mes
+    return lista_general,json_rutas_excel,año,mes
 
 #para los que solo tienen estacionamientos
 def generar_excel_estacionamientos(json,finca,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
