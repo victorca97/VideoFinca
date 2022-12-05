@@ -11,27 +11,27 @@ from re_excel import convertir_pdf,get_url_api
 #   -- año
 #       -- recibo_mes_nombrepropietario
 
-def generar_doc_finca(tipo,datos_dpto_estacionamiento,datos_subsecciones,datos_finca,finca,cantidad_propietarios,fecha_emision,fecha_vencimiento): #devuelve una matriz con los sgtes datos
-    print('ENTRO A GENERAR DOC FINCA')
+def generar_doc_finca(tipo_doc,datos_dpto_estacionamiento,datos_subsecciones,datos_finca,finca,cantidad_propietarios,fecha_emision,fecha_vencimiento,tipo): #devuelve una matriz con los sgtes datos
+    
     # estado: si se genero correctamente el excel
     # propietario: nombre del propietario
     # path = '../excels/pruebas'#ruta donde se guardaran los excels y pdfs
     # json = get_informacion()#jala el JSON con toda la informacion
     # esto para no llenar la carpeta y q solo se genere cuando lo desee el usuario/cliente
-    varbuffer,lista_json_excel,año,mes = generar_excel_propietarios(datos_dpto_estacionamiento,datos_subsecciones,datos_finca,finca,cantidad_propietarios,fecha_emision,fecha_vencimiento) #devuelve la lista con estado,propietario,excel codificado
-    print('GENERO LOS EXCELS')
-    if (tipo == 'xlsx'):
+    varbuffer,lista_json_excel,año,mes = generar_excel(datos_dpto_estacionamiento,datos_subsecciones,datos_finca,finca,cantidad_propietarios,fecha_emision,fecha_vencimiento,tipo) #devuelve la lista con estado,propietario,excel codificado
+    
+    if (tipo_doc == 'xlsx'):
         #convertir_pdf(path,tipo)#genera los pdfs
-        print('ENTRO AL IF DE EXCEL')
+        
         #ruta_url = get_url_api()
-        print('SALIENDO DEL IF EXCEL')
+        
         return lista_json_excel
-    elif (tipo == 'pdf'):
-        print('ENTRO AL IF DE PDF')
+    elif (tipo_doc == 'pdf'):
+        
         lista_json_pdf = convertir_pdf(varbuffer,cantidad_propietarios,finca,año,mes)
         #retornar el status
         #ruta_url = get_url_api()
-        print('SALIENDO DEL IF DE PDF')
+        
         return lista_json_pdf
     else:
         print('tipo de extension incorrecto (poner xlsx o pdf)')

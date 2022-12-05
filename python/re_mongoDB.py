@@ -2,10 +2,9 @@ from openpyxl import Workbook
 from re_excel import *
 from openpyxl.styles import *
 
-#esta version lee por propietarios
-def generar_excel_propietarios(datos_dpto_estacionamiento,datos_subsecciones,datos_finca,finca,cantidad_propietarios,fecha_emision,fecha_vencimiento,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
+def generar_excel(datos_dpto_estacionamiento,datos_subsecciones,datos_finca,finca,cantidad_propietarios,fecha_emision,fecha_vencimiento,tipo,tipo_moneda='S/.',mensaje_extra='Mensaje extra al pie de pagina',n_excel=1):
     #para leer el json
-    print('ENTRO A GENERAR EXCEL PROPIETARIO')
+    solo_dpto = False
     #DATOS DE LA FINCA
     info_finca = datos_finca[0]
     direccion = info_finca["Direccion"]
@@ -22,83 +21,79 @@ def generar_excel_propietarios(datos_dpto_estacionamiento,datos_subsecciones,dat
     for i in range(cantidad_propietarios):
         dato_dpto_estc = datos_dpto_estacionamiento[i]
         propietario=dato_dpto_estc["Nombres_y_Apellidos"]
-        #print('PROPIETARIO ',propietario)
         id_departamento = dato_dpto_estc["Departamentos"][0]["ID_Departamentos"]
-        #print('ID DEPARTAMENTO ',id_departamento)
         porc_participacion = dato_dpto_estc["Departamentos"][0]["Porcentaje_Participacion"]
-        #print('PORC PARTICIPACION',porc_participacion)
         num_estacionamiento = dato_dpto_estc["Estacionamientos"][0]["Numero_Estacionamiento"]
-        #print('NUM ESTACIONAMIENTO ',num_estacionamiento)
+
+        if tipo==1:
+            #if num_estacionamiento == "" and id_departamento != "":
+            if num_estacionamiento == "":
+               print('SOLO DEPARTAMENTO\n')
+               solo_dpto = True
+            else:
+                print('TANTO DPTO COMO ESTACIONAMIENTO\n') 
+                solo_dpto = False
+        else:
+            solo_dpto = True
+            print('SOLO ESTACIONAMIENTO\n')
 
         estado = 0
-        #propietario = prop[i]['Nombres_y_Apellidos']
 
         try:
             #CREANDO EL EXCEL
             total_monto=0
             book=Workbook()
             sheet= book.active
-            print('ENTRO A GENERAR EL EXCEL')
+            
             #[17,18,14,10,17] original
             ancho_columnas_parametros(sheet)
             combinar_celdas(sheet,'B1','D1','JUNTA DE PROPIETARIOS')
             sheet['B1'].alignment=Alignment(horizontal="center")
             combinar_celdas(sheet,'B2','D2',Nombre)
             sheet['B2'].alignment=Alignment(horizontal="center")
-            print('FUNCIONA EL alignment')
-            #DIRECCION
-            #id = prop[i]['_id']
-            #direccion=json[0]['Direccion']
-
             combinar_celdas(sheet,'B3','D3',direccion)
             sheet['B3'].alignment=Alignment(horizontal="center")
-
             combinar_celdas(sheet,'B4','D4','RECIBO POR CUOTA DE MANTENIMIENTO')
             sheet['B4'].alignment=Alignment(horizontal="center")
             formato_celdas(sheet,'B1','Arial',9,True,True,'000000',True)
             combinar_celdas(sheet,'A1','A4')
             combinar_celdas(sheet,'E1','E4')
 
-            sheet['A5']='Departamento:'
+            if tipo == 1:#
+                sheet['A5']='Departamento:'
+                sheet['B5']=id_departamento
+                sheet['B5'].alignment=Alignment(horizontal='center')
+            else:
+                sheet['A5']='Estacionamiento:'
+                sheet['B5']=num_estacionamiento
+                sheet['B5'].alignment=Alignment(horizontal='center')
+            
             sheet['A6']='Propietario:'
             sheet['A7']='Periodo:'
-
-            #DEPARTAMENTO y PORC. PARTICIPACION
-            #departamento
-            #departamentos = prop[i]['Departamentos']
-            #id_departamento = departamentos[0]['ID_Departamentos']
-            #porcentaje_participacion = departamentos[0]['Porcentaje_Participacion']
-            
-            sheet['B5']=id_departamento
-            sheet['B5'].alignment=Alignment(horizontal='center')
-            
             #mes = 'SETIEMBRE'
             #año = '2022'
-            periodo = str(mes)+' '+str(año)
+            periodo = nombre_mes(mes,año)#poner el mes segun el numero de este 
             sheet['B7']=periodo
-            #print('PERIODO '+periodo)
             sheet['B7'].alignment=Alignment(horizontal='center')
-            
-            #estacionamientos = prop[0]['Estacionamientos']
 
-            #por cada estacionamiento
-            #for j in range(len(estacionamientos)):
-                #num_estacionamiento = estacionamientos[j]['Numero_Estacionamiento']
-            
-            sheet['C5']='Estacionamiento:'
+            if tipo == 1 and solo_dpto == False:#tiene ambos
+                sheet['C5']='Estacionamiento:'
+                sheet.merge_cells('D5:E5')
+                sheet['D5']=num_estacionamiento
+                sheet['D5'].alignment=Alignment(horizontal='center')
+            elif solo_dpto:
+                sheet.merge_cells('B5:E5')
+
             sheet.merge_cells('B6:E6')
-
-            #Datos del propietario
-
-            #nombres_completos = prop[i]['Nombres_y_Apellidos'] #nombre del propietario
 
             sheet['B6']=propietario
             sheet['B6'].alignment=Alignment(horizontal='center')
             sheet['C7']='Total Porc. Part.'
 
-            sheet.merge_cells('D5:E5')
-            sheet['D5']=num_estacionamiento
-            sheet['D5'].alignment=Alignment(horizontal='center')
+            if solo_dpto ==False:
+                sheet.merge_cells('D5:E5')
+                sheet['D5']=num_estacionamiento
+                sheet['D5'].alignment=Alignment(horizontal='center')
 
             sheet.merge_cells('D7:E7')
             sheet['D7']=porc_participacion
@@ -138,11 +133,11 @@ def generar_excel_propietarios(datos_dpto_estacionamiento,datos_subsecciones,dat
                     iterable=iterable+1
 
                     nombre_subseccion = subseccion[s]['nombre']
-                    print('NOMBRE SUBSECCION >>>> ',nombre_subseccion)
+                    
                     monto_subseccion = subseccion[s]['monto']
-                    print('MONTO SUBSECCION >>>> ',monto_subseccion)
+                    
                     descripcion_subseccion = subseccion[s]['descripcion']
-                    print('DESCRIPCION SUBSECCION >>>> ',descripcion_subseccion)
+                    
                     #subsecciones
                     celda_col1=f'A{iterable}'
                     valor_col1=nombre_subseccion
@@ -175,13 +170,13 @@ def generar_excel_propietarios(datos_dpto_estacionamiento,datos_subsecciones,dat
                     porc_participacion_float = float(porc_participacion)
                     
                     total_monto_fila=monto_subseccion*(porc_participacion_float/100)#ACA FALLA POR ALGUN MOTIVO ....
-                    print('TOTAL MONTO FILA >>> ',str(total_monto_fila))
+                    
 
                     monto_fila = monto_subseccion + total_monto_fila
 
                     total_monto=total_monto+monto_fila
                     total_monto_fila_float="{:.2f}".format(total_monto_fila)
-                    print('TOTAL MONTO FILA >>> ',str(total_monto_fila_float))
+                    
                     if (tipo_moneda!='€'):
                         valor_col5=tipo_moneda +' '+str(total_monto_fila_float)
                     else:
@@ -243,12 +238,12 @@ def generar_excel_propietarios(datos_dpto_estacionamiento,datos_subsecciones,dat
             
             #La suma total
             total_monto_float="{:.2f}".format(total_monto)
-            print('TOTAL MONTO FINAL >>> '+str(total_monto_float))
+            
             if (tipo_moneda!='€'):
                 celda_suma_expresion=tipo_moneda +' '+str(total_monto_float)
             else:
                 celda_suma_expresion=str(total_monto_float)+' '+tipo_moneda
-            print('celda_suma_expresion :>>> ',celda_suma_expresion)
+            
             celda_total=f'A{iterable}'
             celda_total_valor=f'E{iterable}'
             sheet[celda_total] = 'TOTAL'
@@ -345,7 +340,7 @@ def generar_excel_propietarios(datos_dpto_estacionamiento,datos_subsecciones,dat
             combinar_celdas(sheet,celdaini_mensaje,celdafin_mensaje,mensaje_extra)
             sheet.cell(ultima_fila+2,1).alignment = Alignment(horizontal='center',vertical='center')
             poner_imagenes(sheet)
-            print('Puso las imagenes')
+            
             sheet.cell(1,5).alignment = Alignment(horizontal='center',vertical='center')
 
             sheet.cell(8,1).border = Border(left=Side(border_style='thin', color='000000'),
@@ -353,17 +348,9 @@ def generar_excel_propietarios(datos_dpto_estacionamiento,datos_subsecciones,dat
                                             top=Side(border_style=None, color='000000'),
                                             bottom=Side(border_style=None, color='000000'))
 
-            print('Propietario >>> ',propietario)
             nombres_completos = propietario.replace(' ','_')#habia un problema si dejaba los nombres con espacio
-            print('Nombres completos >>> ',nombres_completos)
             nombre_excel = f'propietario_{nombres_completos}.xlsx'
-            print('NOMBRE EXCEL >>> ',nombre_excel)
-            print('FINCA >>> ',finca)
-            print('YEAR >>> ', año)
-            print('MES >>> ',mes)
             ruta_excel_real = guardar_ruta_excel(nombre_excel,finca,nombres_completos,año,mes)
-            print('RUTA EXCEL REAL >>> ',ruta_excel_real)
-            print('ruta excel real → ',str(ruta_excel_real))
             book.save(ruta_excel_real)
             agregar_fecha()
             #aumentando el numero del excel a guardar
@@ -388,7 +375,7 @@ def generar_excel_propietarios(datos_dpto_estacionamiento,datos_subsecciones,dat
             lista_general[i][1] = propietario
             diccionario_info = {"cliente":nombres_completos,"estado":estado,"ruta_excel":'Error al procesar el documento: '+e}
             json_rutas_excel.append(diccionario_info)
-    print('LEYO TODOS LOS PROPIETARIOS')
+    print('ACABO LA CREACION DEL EXCEL')
     return lista_general,json_rutas_excel,año,mes
 
 #para los que solo tienen estacionamientos

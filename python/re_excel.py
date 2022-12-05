@@ -259,15 +259,12 @@ def get_url_api():
 
 def guardar_ruta_excel(nombre_excel,finca,propietario,año,mes):
     ruta_archivos = 'fincas/'+finca+'/'+propietario+'/'+str(año) #falta /mes_propietario.xlsx
-    print('RUTA ARCHIVOS')
     ruta = str(pathlib.Path().absolute())
     a=ruta.replace('\\','/')
     x = a.rfind("/")
-    print('ruta matriz',a[0:x+1]) #C:/Users/DELL/Desktop/flask_videofinca/
     ruta_carpetas = pathlib.Path(a[0:x+1]+ruta_archivos)
     ruta_carpetas.mkdir(parents=True)
     ruta_excel_real = a[0:x+1]+ruta_archivos+'/'+str(mes)+'_'+nombre_excel
-    print(ruta_excel_real)
     return ruta_excel_real
 
 def agregar_fecha():
@@ -317,10 +314,31 @@ def validar_id_estacionamiento(num_estacionamiento,Finca,estado):
         print('Error → ', str(e))
         return validacion
     
+def nombre_mes(mes,año):
+    m = {
+        1: "Enero",
+        2: "Febrero",
+        3: "Marzo",
+        4: "Abril",
+        5: "Mayo",
+        6: "Junio",
+        7: "Julio",
+        8: "Agosto",
+        9: "Setiembre",
+        10: "Octubre",
+        11: "Noviembre",
+        12: "Diciembre"
+        }
+    try:
+        periodo = m[mes]+' '+str(año)
+        return periodo
+    except Exception as e:
+        print('ERROR >>>',e)
+
 #PRUEBAS        
 def prueba():
     #generar_id()
-    archivo = open("imagen.txt")
+    """archivo = open("imagen.txt")
     texto = archivo.read()
     print(texto)
 
@@ -328,5 +346,7 @@ def prueba():
     base64_img_bytes = texto.encode('utf-8')
     with open("raaa.jpg", 'wb') as file_to_save:
         decoded_image_data = base64.decodebytes(base64_img_bytes)
-        file_to_save.write(decoded_image_data)
+        file_to_save.write(decoded_image_data)"""
+    periodo =nombre_mes(3,2022)
+    print('PERIODO >>> ',periodo)
 #prueba()
