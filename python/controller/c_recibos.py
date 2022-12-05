@@ -16,15 +16,9 @@ def generar_recibos():#R1 CREA LOS DOCUMENTOS
         #year = request.json["Year"]
         tipo = request.json["tipo"]
         fecha_emision = request.json["fecha_emision"]
-        #print(fecha_emision)
         fecha_vencimiento = request.json["fecha_vencimiento"]
         tipo_propietario = tipo
-        print('TIPO PROPIETARIO >>> ',tipo_propietario)
-        #print(fecha_vencimiento)
         borrar_temporal()
-        #print('ID >>>',id)
-        #print('FINCA >>>',finca)
-        #print('Tipo >>>',tipo)
         propietarios = conexion('propietarios').find({'Finca': finca,"estado": "A","tipo_propietario":tipo_propietario})
         #Obtengo el id departamento, estacionamiento, prc participacion,nombre del propeitario
         datos_dpto_estacionamiento = json_util.dumps(propietarios) #STRING
@@ -50,8 +44,7 @@ def generar_recibos():#R1 CREA LOS DOCUMENTOS
         tipo_doc = 'pdf' #xlsx o pdf
         if cantidad_propietarios>0:
             #print('entro al if')
-            lista_recibos = generar_doc_finca(tipo_doc,datos_dpto_estacionamiento,datos_subsecciones,datos_finca,finca,cantidad_propietarios,fecha_emision,fecha_vencimiento)
-            print('LISTA RECIBOS >>> ',lista_recibos) #tipo lista 
+            lista_recibos = generar_doc_finca(tipo_doc,datos_dpto_estacionamiento,datos_subsecciones,datos_finca,finca,cantidad_propietarios,fecha_emision,fecha_vencimiento,tipo)
             #lista_recibos_dumps = json_util.dumps(lista_recibos)#tipo string
             return json_util.dumps(lista_recibos)
         else:
