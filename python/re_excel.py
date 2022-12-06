@@ -335,18 +335,28 @@ def nombre_mes(mes,año):
     except Exception as e:
         print('ERROR >>>',e)
 
+def contar_porc_participacion(Finca,estado):
+    sumatoria = 0
+    try:
+        respuesta = conexion('propietarios').find({"$and": [
+            {"Finca": f'{Finca}'},
+            {"estado": f'{estado}'}
+            ]})
+        response = json_util.dumps(respuesta)#es un string []
+        consulta = json_util.loads(response)#diccionario
+        long = len(consulta) #cuenta a todos los propietarios
+        for i in range(long):
+            var = consulta[i]["Departamentos"][0]["Porcentaje_Participacion"]
+            sumatoria = sumatoria + float(var) #es un float
+        conexion('finca').update_one(
+                    {'_id': Finca}, {'$set': {
+                                            "Total_porc_participacion": sumatoria}})                                   
+    except Exception as e:
+        print('ERROR EN ACTUALIZAR PORC DE PARTICIPACION>>> ',e)
 #PRUEBAS        
 def prueba():
-    #generar_id()
-    """archivo = open("imagen.txt")
-    texto = archivo.read()
-    print(texto)
+    #PONER LA FUNCION A PROBAR Y DESCOMENTAR LA ULTIMA LINEA
+    contar_porc_participacion('Finca0002','A')
+    #pass
 
-    #base64.decodestring(texto)
-    base64_img_bytes = texto.encode('utf-8')
-    with open("raaa.jpg", 'wb') as file_to_save:
-        decoded_image_data = base64.decodebytes(base64_img_bytes)
-        file_to_save.write(decoded_image_data)"""
-    periodo =nombre_mes(3,2022)
-    print('PERIODO >>> ',periodo)
 #prueba()
