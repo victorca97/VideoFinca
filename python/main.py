@@ -8,6 +8,7 @@ from re_excel import *
 
 app = Flask(__name__)
 import rutas.admins
+import rutas.deposito
 import rutas.finca
 import rutas.propietarios
 import rutas.recibos
