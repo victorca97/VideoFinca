@@ -80,7 +80,7 @@ def registrar_propietario():#P2
         else:#mensaje en caso los campos Departamentos y Estacionamientos esten vacios
             validacion_general = False
             response = {"status": 400,'mensaje': 'Los campos de Departamento y Estacionamiento no pueden estar ambos vacios'}  
-            return response
+            #return response
 
         if validacion_general:
             if _id or Finca or Nombres_y_Apellidos or Tipo_Documento or Nro_Documento or Correo or Telefono or array_departamentos or Estacionamientos :
@@ -93,21 +93,22 @@ def registrar_propietario():#P2
                     "Estacionamientos": Estacionamientos,"Fecha_creacion":fecha,"Fecha_modificacion":modificacion,"estado":estado,
                     "tipo_propietario":tipo_propietario})
                 response = {
-                    "status": 201,
+                    "status": 200,
                     "mensaje": "El usuario "+ Nombres_y_Apellidos+ " se registro satisfactoriamente"
                 }
-                return response
+                #return response
             else:
-                response = {"status": 400,'mensaje': 'Uno o mas datos a registrar son incorrectos'}  
-                return response
+                response = {"status": 201,'mensaje': 'Uno o mas datos a registrar son incorrectos'}  
+                #return response
         else:
             if  validacion_departamento!=True:
-                response = {"status": 400,'mensaje': "El departamento "+duplicado_ID_Departamentos+" ya esta siendo usado"}            
-                return response
+                response = {"status": 201,'mensaje': "El departamento "+duplicado_ID_Departamentos+" ya esta siendo usado"}            
+                #return response
             else:
-                response = {"status": 400,'mensaje': "El estacionamiento "+duplicado_Numero_Estacionamiento+" ya esta siendo usado"}            
-                return response
-
+                response = {"status": 201,'mensaje': "El estacionamiento "+duplicado_Numero_Estacionamiento+" ya esta siendo usado"}            
+                #return response
+        contar_porc_participacion(Finca,estado)
+        return response
     except Exception as e:
         print(e)
         response = {
@@ -159,9 +160,9 @@ def actualizar_propietario_ID():#P6
         if ID_Departamentos != "" and Numero_Estacionamiento!="":#puso tanto departamento como estacionamiento
             if ID_Departamentos== valor_id_departamento_antes and Numero_Estacionamiento== valor_estacionamiento_antes:
                 #en caso no se haga ninguna modificacion
-                response = {"status": 201,'mensaje': 'El propietario ' + Nombres_y_Apellidos + ' ha sido actualizado satisfactoriamente'}
-                validacion_general= False
-                return json_util.dumps(response)
+                #response = {"status": 201,'mensaje': 'El propietario ' + Nombres_y_Apellidos + ' ha sido actualizado satisfactoriamente'}
+                validacion_general= True
+                #return json_util.dumps(response)
             elif (ID_Departamentos!= valor_id_departamento_antes and Numero_Estacionamiento== valor_estacionamiento_antes):
                 #solo cambia dpto
                 validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
@@ -193,25 +194,29 @@ def actualizar_propietario_ID():#P6
                     duplicado_ID_Departamentos = ID_Departamentos
 
         elif ID_Departamentos!="":#solo puso departamento
-            validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
-            #validacion_estacionamiento = validar_id_estacionamiento(Numero_Estacionamiento,Finca,"A")
-            if validacion_departamento ==False:
-                repite_departamento = True
-                duplicado_ID_Departamentos = ID_Departamentos
-            validacion_general = validacion_departamento
+            if ID_Departamentos== valor_id_departamento_antes:
+                validacion_general=True
+            else:
+                validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
+                if validacion_departamento ==False:
+                    repite_departamento = True
+                    duplicado_ID_Departamentos = ID_Departamentos
+                validacion_general = validacion_departamento
             
         elif Numero_Estacionamiento!="":#solo puso estacionamiento
-            #validacion_departamento = validar_id_departamento(ID_Departamentos,Finca,"A")
-            validacion_estacionamiento = validar_id_estacionamiento(Numero_Estacionamiento,Finca,"A")
-            if validacion_estacionamiento ==False:
-                repite_estacionamiento = True
-                duplicado_Numero_Estacionamiento = Numero_Estacionamiento
-            validacion_general = validacion_estacionamiento
+            if Numero_Estacionamiento == valor_estacionamiento_antes:
+                validacion_general=True
+            else:
+                validacion_estacionamiento = validar_id_estacionamiento(Numero_Estacionamiento,Finca,"A")
+                if validacion_estacionamiento ==False:
+                    repite_estacionamiento = True
+                    duplicado_Numero_Estacionamiento = Numero_Estacionamiento
+                validacion_general = validacion_estacionamiento
 
         else:#mensaje en caso los campos Departamentos y Estacionamientos esten vacios
             validacion_general = False
             response = {"status": 400,'mensaje': 'Los campos de Departamento y Estacionamiento no pueden estar ambos vacios'}  
-            return json_util.dumps(response)
+            #return json_util.dumps(response)
 
         if validacion_general:
             if _id or Finca or Nombres_y_Apellidos or Tipo_Documento or Nro_Documento or Correo or Telefono or array_departamentos or Estacionamientos:
@@ -228,24 +233,25 @@ def actualizar_propietario_ID():#P6
                                             "Departamentos":array_departamentos,
                                             "Estacionamientos":Estacionamientos,
                                             "Fecha_modificacion": modificacion}})
-                response = {"status": 201,'mensaje': 'El propietario ' + Nombres_y_Apellidos + ' ha sido actualizado satisfactoriamente'}
-                return json_util.dumps(response)
+                response = {"status": 200,'mensaje': 'El propietario ' + Nombres_y_Apellidos + ' ha sido actualizado satisfactoriamente'}
+                #return json_util.dumps(response)
             else:
                 response ={
                     "status": 400,
                     "mensaje":"Uno o mas datos a actualizar son incorrectos"}
-                return json_util.dumps(response)
+                #return json_util.dumps(response)
         else:
             if repite_departamento:
                 response = {"status": 201,'mensaje': 'El departamento ' + duplicado_ID_Departamentos +' ya esta siendo usado'}
-                return json_util.dumps(response)
+                #return json_util.dumps(response)
             elif repite_estacionamiento:
                 response = {"status": 201,'mensaje': 'El estacionamiento ' + duplicado_Numero_Estacionamiento +' ya esta siendo usado'}
-                return json_util.dumps(response)  
+                #return json_util.dumps(response)  
             elif repite_ambos:
                 response = {"status": 201,'mensaje': 'El estacionamiento ' + duplicado_Numero_Estacionamiento +' y el departamento '+duplicado_ID_Departamentos+' ya esta siendo usado'}
-                return json_util.dumps(response)
-
+                #return json_util.dumps(response)
+        contar_porc_participacion(Finca,estado)
+        return json_util.dumps(response)
     except Exception as e:
         print(e)
         response = {

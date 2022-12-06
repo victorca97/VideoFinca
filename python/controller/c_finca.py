@@ -44,7 +44,8 @@ def crear_finca():
             _id = generar_id()
             now = agregar_fecha()
             db = conexion('finca')
-            db.insert_one({ "_id":_id,"Admin_Id":Admin_Id,"Direccion":Direccion, "Nombre":Nombre, "Fecha_creacion":now,"Fecha_modificacion":modificacion})
+            total_porc_participacion = 0
+            db.insert_one({ "_id":_id,"Admin_Id":Admin_Id,"Direccion":Direccion, "Nombre":Nombre, "Fecha_creacion":now,"Fecha_modificacion":modificacion,"Total_porc_participacion":total_porc_participacion})
             #print('RESPUESTA',respuesta)
             response = {
                 "status": 201,
@@ -53,6 +54,7 @@ def crear_finca():
                 "Direccion":Direccion,
                 "Nombre":Nombre,
                 "Fecha_creacion": now,
+                "Total_porc_participacion":total_porc_participacion,
                 "mensaje" : 'Se registro satisfactoriamente la finca '+Nombre
             }
             return response
@@ -72,6 +74,7 @@ def actualizar_finca_ID():
         Nombre = request.json["Nombre"]
         if Admin_Id or Direccion or Nombre:
             fecha_modificacion = agregar_fecha()
+            Total_porc_participacion = contar_porc_participacion(id,'A')
             conexion('finca').update_one(
                 #{'_id': ObjectId(id['$oid']) if '$oid' in id else ObjectId(id)}, {'$set': {  
                 {'_id': id}, {'$set': {  
@@ -79,6 +82,7 @@ def actualizar_finca_ID():
                     "Admin_Id":Admin_Id,
                     "Direccion":Direccion,
                     "Nombre":Nombre,
+                    "Total_porc_participacion":Total_porc_participacion,
                     "Fecha_modificacion": fecha_modificacion}}
             )
         response = json_util.dumps({"status": 201,'message': 'La Finca ' + Nombre + ' ha sido actualizado satisfactoriamente'})
