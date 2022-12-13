@@ -46,26 +46,15 @@ def generar_recibos():#R1 CREA LOS DOCUMENTOS
             #print('entro al if')
             lista_recibos = generar_doc_finca(tipo_doc,datos_dpto_estacionamiento,datos_subsecciones,datos_finca,finca,cantidad_propietarios,fecha_emision,fecha_vencimiento,tipo)
             #lista_recibos_dumps = json_util.dumps(lista_recibos)#tipo string
-            return json_util.dumps(lista_recibos)
+            response = {"status": 200,"mensaje":"Se acabo de generar los documentos "}
+            #return json_util.dumps(lista_recibos)
+            return json_util.dumps(response)
         else:
             print('ERROR DENTRO DEL TRY')
             response = {"status": 400,"mensaje":"No hay propietarios en la finca "+finca}
         print('FINALIZO LA GENERACION DE DOCUMENTOS')
         return response
-        #Obtengo:
-        #-Subseeciones, monto,mes
-        #print('RESPONSE RECIBOS'+datos_subsecciones+'\n')
-        """tipo_doc = 'pdf' #xlsx o pdf
-        datos = json.loads(response)
-        lista = datos[0]['Propietarios']
-        cantidad_propietarios = len(lista)
-        if cantidad_propietarios>0:
-            lista_recibos,url = generar_doc_finca(tipo_doc,datos,finca)
-            return Response(json_util.dumps(lista_recibos),mimetype="application/json"),{"Access-Control-Allow-Origin": "*"}
-        else:
-            print('ERROR DENTRO DEL TRY')
-            response = {"status": 400,"mensaje":"No hay propietarios en la finca "+finca}
-        return response"""
+        
     except Exception as e:
         print('ERROR TRY', str(e))
         response = {"status": 500,"mensaje":"Hubo error al registrar → "+str(e)}
@@ -77,7 +66,6 @@ def listar_recibos():#RNUEVO1
     return response
 
 def listar_recibos_ID():#RNUEVO2
-    print('ENTRANDO A RECIBOS')
     #TIPO 1 → DPTO
     #TIPO 2 → ESTACIONAMIENTO
     finca = request.json["_id"]
@@ -87,8 +75,8 @@ def listar_recibos_ID():#RNUEVO2
     try:
         plantilla = conexion('recibos').find({'Finca': finca ,'tipo':tipo}).sort( 'Fecha_modificacion', -1 ).limit(1)
         #plantilla = conexion('recibos').find({'Finca': finca,'Mes':mes,'Year': anno ,'tipo':tipo})
+
         response = json_util.dumps(plantilla)
-        print(plantilla)
         return response
     
     except Exception as e:
@@ -100,19 +88,11 @@ def crear_recibos():#A TRABAJAR ACA!!
     #TIPO 1 → DPTO
     #TIPO 2 → ESTACIONAMIENTO
     try:
-        print('JSON >>> ',request.json)
         finca= request.json["Finca"]
         mes = request.json["Mes"]#esto sera un numero
         year = request.json["Year"]#tipo datetime
         seccion = request.json["Seccion"]
         tipo = request.json["tipo"]
-        print('FINCA >>> ',finca)
-        print('MES >>> ',mes)
-        print('YEAR >>> ',year)
-        print('SECCION >>> ',seccion)
-        print('TIPO >>>',tipo)
-        print(type(seccion))# tipo lista
-        #print(lon)
         modificacion = datetime.now()
         _id = generar_id()
         db = conexion('recibos')
@@ -135,35 +115,22 @@ def crear_recibos():#A TRABAJAR ACA!!
                             "Fecha_modificacion":modificacion}
                             })"""
         response = {"status": 201,'mensaje': 'Se ha creado satisfactoriamente el recibo del ' + str(mes) + ' del año '+str(year)}
-        
         return json_util.dumps(response)
-    
+
     except Exception as e:
         response = {
                 "status": 500,
                 "mensaje":"Hubo error al actualizar → "+str(e)}
         print('ERROR → '+ str(e))
-        return response
-       
+        return response     
 
 def actualizar_recibos():#R2
     try:
-        print('JSON >>> ',request.json)
         finca= request.json["Finca"]
         mes = request.json["Mes"]#esto sera un numero
         year = request.json["Year"]
         seccion = request.json["Seccion"]
         tipo = request.json["tipo"]
-
-        print('FINCA >>> ',finca)
-        print('MES >>> ',mes)
-        print('YEAR >>> ',year)
-        print('SECCION >>> ',seccion)
-        print('TIPO >>>',tipo)
-        print(type(seccion))# tipo lista
-        #print(lon)
-        
-
         modificacion = agregar_fecha()
         conexion('propietarios').update_one(
             {'_id': id}, {'$set': {"_id": id,
@@ -176,17 +143,6 @@ def actualizar_recibos():#R2
         
         return json_util.dumps(response)
 
-        """for i in range(lon): 
-            if Finca or Seccion:
-                response = {"$set":{"_id": id,"Finca":Finca,"Seccion":Seccion,"Seccion.ID_Departamentos":seccion}}
-                filter={
-                    "_id": id, 
-                }
-                id = conexion('plantilla').update_one(filter, response)
-                print('RESPONSE >>>>> ',response)
-                return response
-        else:
-            return not_found()"""
     except Exception as e:
         print('ERROR → ',e)
         response = {
@@ -220,12 +176,10 @@ def modificar_subsecciones(id_subseccion,nombre,monto,descripcion):
                 }
     return resultado
 
-
 def not_found(mensaje):
     mensaje = {
         'mensaje': mensaje,
         'status': 404
     }
     response = jsonify(mensaje)
-    
     return response
