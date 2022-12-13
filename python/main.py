@@ -7,8 +7,7 @@ from re_excel import *
 #import json
 
 app = Flask(__name__)
-import rutas.admins
-import rutas.deposito
+import rutas.admins#salvavidas xd
 import rutas.finca
 import rutas.propietarios
 import rutas.recibos

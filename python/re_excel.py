@@ -313,7 +313,25 @@ def validar_id_estacionamiento(num_estacionamiento,Finca,estado):
     except Exception as e:
         print('Error → ', str(e))
         return validacion
-    
+def validar_id_deposito(num_deposito,Finca,estado):
+    validacion = False
+    try:
+        respuesta = conexion('propietarios').find({"$and": [
+            {"Numero_deposito": f'{num_deposito}'}, 
+            {"Finca": f'{Finca}'},
+            {"estado": f'{estado}'}
+            ]})
+        response = json_util.dumps(respuesta)#es un string []
+        consulta = json_util.loads(response)#diccionario
+        if len(consulta)>0:
+            return validacion
+        else:
+            validacion = True
+            return validacion
+    except Exception as e:
+        print('Error → ', str(e))
+        return validacion
+
 def nombre_mes(mes,año):
     m = {
         1: "Enero",
